@@ -12,8 +12,6 @@ function HomePage() {
     <>
       <Hero />
 
-      <HostProfile variant="full" />
-
       <section className="page">
         <div className="container">
           <h2 className="page-title">Featured stays</h2>
@@ -32,6 +30,8 @@ function HomePage() {
           </p>
         </div>
       </section>
+
+      <HostProfile variant="full" />
     </>
   );
 }

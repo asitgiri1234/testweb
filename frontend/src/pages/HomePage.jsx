@@ -2,6 +2,7 @@
  * Home page — hero + featured property cards
  */
 import Hero from "../components/home/Hero.jsx";
+import HostProfile from "../components/HostProfile.jsx";
 import PropertyCard from "../components/properties/PropertyCard.jsx";
 import { dummyProperties } from "../data/dummyProperties.js";
 import { Link } from "react-router-dom";
@@ -10,6 +11,8 @@ function HomePage() {
   return (
     <>
       <Hero />
+
+      <HostProfile variant="full" />
 
       <section className="page">
         <div className="container">

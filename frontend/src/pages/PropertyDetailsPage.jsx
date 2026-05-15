@@ -4,6 +4,7 @@
 import { useParams, Link } from "react-router-dom";
 import PropertyGallery from "../components/properties/PropertyGallery.jsx";
 import AmenitiesSection from "../components/properties/AmenitiesSection.jsx";
+import HostProfile from "../components/HostProfile.jsx";
 import BookingWidget from "../components/booking/BookingWidget.jsx";
 import { getPropertyBySlug } from "../data/dummyProperties.js";
 import "./PropertyDetailsPage.css";
@@ -45,6 +46,8 @@ function PropertyDetailsPage() {
             </section>
 
             <AmenitiesSection amenities={property.amenities} />
+
+            <HostProfile variant="compact" />
 
             {property.rules?.length > 0 && (
               <section className="property-details__section">

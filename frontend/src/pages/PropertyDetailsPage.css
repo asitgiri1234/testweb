@@ -1,0 +1,44 @@
+.property-details__header {
+  margin-bottom: 1.5rem;
+}
+
+.property-details__location {
+  color: var(--color-muted);
+}
+
+.property-details__meta {
+  font-size: 0.9rem;
+  color: var(--color-muted);
+  margin-top: 0.25rem;
+}
+
+.property-details__layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 2rem;
+  align-items: start;
+}
+
+.property-details__section {
+  margin-top: 2rem;
+}
+
+.property-details__section h2 {
+  font-size: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.property-details__rules {
+  padding-left: 1.25rem;
+  color: var(--color-muted);
+}
+
+.property-details__rules li {
+  margin-bottom: 0.35rem;
+}
+
+@media (max-width: 900px) {
+  .property-details__layout {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,16 +1,67 @@
-# testweb
+# StayDirect — Vacation Rental Booking Platform
 
-Basic portfolio site for Airbnb host **Asit Giri**, showcasing two property listings.
+Direct booking website for vacation rentals (Airbnb-style), built in phases.
 
-## Structure
+**Phase 1 (current):** Project architecture, React frontend skeleton, Express + MongoDB backend skeleton.
 
-- `index.html` — host intro, about section, two property cards, contact
-- `styles.css` — layout and Airbnb-inspired styling (no images yet)
+## Project structure
 
-## Run locally
+```
+testweb/
+├── frontend/          # React (Vite) — UI
+│   └── src/
+│       ├── components/
+│       ├── pages/
+│       ├── data/      # Dummy properties (until API is wired)
+│       └── styles/
+└── backend/           # Express + Mongoose — API
+    └── src/
+        ├── config/    # DB connection
+        ├── models/    # Property, Booking schemas
+        ├── controllers/
+        ├── routes/
+        └── middleware/
+```
 
-Open `index.html` in a browser, or use a simple static server:
+## Quick start
+
+### 1. Backend
 
 ```bash
-npx serve .
+cd backend
+cp .env.example .env
+# Edit .env — set MONGODB_URI (MongoDB must be running locally or use Atlas)
+npm install
+npm run dev
 ```
+
+API health check: http://localhost:5000/api/health
+
+### 2. Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Site: http://localhost:5173
+
+## Development phases
+
+| Phase | Focus |
+|-------|--------|
+| 1 | Architecture + UI/API skeleton ✅ |
+| 2 | Property CRUD API + seed data |
+| 3 | Booking validation, availability, double-booking prevention |
+| 4 | Razorpay payments + confirmation |
+
+## Tech stack
+
+- **Frontend:** React, Vite, React Router, react-day-picker, CSS modules per component
+- **Backend:** Node.js, Express, Mongoose, MongoDB
+- **Payments (later):** Razorpay
+
+## Repository
+
+https://github.com/asitgiri1234/testweb

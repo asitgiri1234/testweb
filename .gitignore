@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Environment secrets (never commit real keys)
+.env
+.env.local
+.env.*.local
+
+# Build output
+frontend/dist/
+backend/dist/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

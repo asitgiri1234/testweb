@@ -1,0 +1,76 @@
+.booking-widget {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  box-shadow: var(--shadow);
+  background: var(--color-white);
+  position: sticky;
+  top: 5rem;
+}
+
+.booking-widget__price {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.booking-widget__field {
+  margin-bottom: 1rem;
+}
+
+.booking-widget__field label,
+.booking-widget__label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.booking-widget__field select {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.booking-widget__calendar {
+  margin-bottom: 1rem;
+}
+
+.booking-widget__hint {
+  font-size: 0.75rem;
+  color: var(--color-muted);
+  margin-top: 0.5rem;
+}
+
+.booking-widget__breakdown {
+  border-top: 1px solid var(--color-border);
+  padding-top: 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.booking-widget__row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.35rem;
+  color: var(--color-muted);
+}
+
+.booking-widget__row--total {
+  font-weight: 700;
+  color: var(--color-text);
+  font-size: 1rem;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.booking-widget__cta {
+  width: 100%;
+  text-align: center;
+}
+
+.booking-widget--compact .booking-widget__calendar {
+  display: none;
+}

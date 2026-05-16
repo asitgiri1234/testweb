@@ -1,9 +1,11 @@
 /**
- * Entry point — load env first, then start Express (+ MongoDB when available).
+ * Backend entry — exports Express for Vercel; listens locally when not on Vercel.
  */
 import "dotenv/config";
 import app from "./src/app.js";
 import connectDB from "./src/config/db.js";
+
+export default app;
 
 const PORT = process.env.PORT || 5000;
 
@@ -19,9 +21,11 @@ function startServer() {
   });
 }
 
-connectDB()
-  .then(() => startServer())
-  .catch((err) => {
-    console.warn(`MongoDB unavailable (${err.message}) — starting API without database.`);
-    startServer();
-  });
+if (!process.env.VERCEL) {
+  connectDB()
+    .then(() => startServer())
+    .catch((err) => {
+      console.warn(`MongoDB unavailable (${err.message}) — starting API without database.`);
+      startServer();
+    });
+}

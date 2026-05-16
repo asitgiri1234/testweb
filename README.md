@@ -47,12 +47,19 @@ npm run dev
 
 Site: http://localhost:5173
 
-## Deploy to Vercel
+## Deploy to Vercel (multi-service)
+
+This repo uses Vercel **Services** — one project, two services in [`vercel.json`](vercel.json):
+
+| Service | Folder | URL prefix |
+|---------|--------|------------|
+| `frontend` | `frontend/` (Vite + React) | `/` |
+| `backend` | `backend/` (Express API) | `/api` |
 
 1. Import the GitHub repo at [vercel.com/new](https://vercel.com/new).
-2. Set **Root Directory** to `.` (repository root — not `frontend`).
-3. Vercel reads [`vercel.json`](vercel.json) automatically (build + API routes).
-4. Add **Environment Variables** in the Vercel project settings:
+2. Set **Root Directory** to `.` (repository root).
+3. Set **Framework Preset** to **Other** or **Services** (must not be only “Vite” — `vercel.json` defines both services).
+4. Add **Environment Variables** (Project → Settings → Environment Variables):
 
 | Variable | Value |
 |----------|--------|
@@ -60,9 +67,9 @@ Site: http://localhost:5173
 | `RESEND_FROM_EMAIL` | `Joseph's Retreat <onboarding@resend.dev>` (or your verified domain) |
 | `HOST_EMAIL` | `joeljoseph2003871@gmail.com` |
 | `SITE_NAME` | `Joseph's Retreat` |
-| `CLIENT_URL` | Your Vercel URL (e.g. `https://your-project.vercel.app`) |
+| `CLIENT_URL` | `https://your-project.vercel.app` |
 
-5. Deploy. The React app is served from `frontend/dist`; `/api/*` runs the Express contact API via [`api/index.js`](api/index.js).
+5. Deploy. Contact form calls `/api/contact` on the same domain (no separate backend URL needed).
 
 ## Development phases
 

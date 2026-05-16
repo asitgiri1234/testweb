@@ -138,18 +138,18 @@ function ContactDialog({ isOpen, onClose }) {
 
         <header className="contact-dialog__header">
           <p className="contact-dialog__eyebrow">{siteConfig.name}</p>
-          <h2 id="contact-dialog-title">Contact the host</h2>
+          <h2 id="contact-dialog-title">Compose your enquiry</h2>
           <p className="contact-dialog__subtitle">
-            Enquiries are sent to{" "}
+            Your message shall be received at{" "}
             <a href={`mailto:${siteConfig.hostEmail}`}>{siteConfig.hostEmail}</a>
           </p>
         </header>
 
         {status === "success" ? (
           <div className="contact-dialog__success" role="status">
-            <p className="contact-dialog__success-title">Enquiry sent</p>
+            <p className="contact-dialog__success-title">Enquiry received</p>
             <p>
-              Your message was delivered to {siteConfig.hostName}. You will receive a reply at{" "}
+              Thank you. {siteConfig.hostName} shall respond with care at{" "}
               <strong>{submittedEmail}</strong>.
             </p>
             <button type="button" className="btn" onClick={onClose}>

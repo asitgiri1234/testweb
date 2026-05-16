@@ -1,5 +1,5 @@
 /**
- * Contact page — host inquiries via modal dialog (email to host)
+ * Contact page — private enquiries to the host
  */
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -20,15 +20,19 @@ function ContactPage() {
   return (
     <section className="page contact-page">
       <div className="container contact-page__inner">
-        <h1 className="page-title">Contact {siteConfig.name}</h1>
-        <p className="page-subtitle">
-          Questions about {siteConfig.properties[0].label} or {siteConfig.properties[1].label}?
-          Send a direct request to the host.
-        </p>
+        <header className="page-header">
+          <span className="page-eyebrow">Enquiries</span>
+          <h1 className="page-title">Begin your reservation</h1>
+          <p className="page-subtitle">
+            Whether you are drawn to {siteConfig.properties[0].label} or{" "}
+            {siteConfig.properties[1].label}, we welcome your message and shall respond
+            with care and promptness.
+          </p>
+        </header>
 
         <div className="contact-page__card">
           <div className="contact-page__host">
-            <p className="contact-page__label">Host email</p>
+            <p className="contact-page__label">Private correspondence</p>
             <a className="contact-page__email" href={`mailto:${siteConfig.hostEmail}`}>
               {siteConfig.hostEmail}
             </a>
@@ -41,10 +45,11 @@ function ContactPage() {
           </ul>
 
           <button type="button" className="btn contact-page__cta" onClick={() => setDialogOpen(true)}>
-            Open contact form
+            Compose an enquiry
           </button>
           <p className="contact-page__hint">
-            Fill in the form and click Send — your message is delivered directly to the host.
+            Share your preferred dates and party size — your message is delivered
+            directly to our host.
           </p>
         </div>
       </div>

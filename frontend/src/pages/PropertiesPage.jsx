@@ -1,17 +1,21 @@
 /**
- * Property listing page — shows all available rentals
+ * Property listing page
  */
 import PropertyCard from "../components/properties/PropertyCard.jsx";
 import { dummyProperties } from "../data/dummyProperties.js";
 
 function PropertiesPage() {
   return (
-    <section className="page">
+    <section className="page section--alt">
       <div className="container">
-        <h1 className="page-title">All properties</h1>
-        <p className="page-subtitle">
-          Choose a stay and book directly — no third-party platform fees.
-        </p>
+        <header className="page-header">
+          <span className="page-eyebrow">The collection</span>
+          <h1 className="page-title">Our residences</h1>
+          <p className="page-subtitle">
+            Two homes, each with its own character — reserve directly and arrive
+            to a space prepared with intention.
+          </p>
+        </header>
 
         <div className="grid-2">
           {dummyProperties.map((property) => (

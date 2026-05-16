@@ -1,6 +1,6 @@
 .gallery__main {
   position: relative;
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   overflow: hidden;
   background: var(--color-bg);
 }
@@ -56,6 +56,6 @@
   padding: 3rem;
   text-align: center;
   background: var(--color-bg);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   color: var(--color-muted);
 }

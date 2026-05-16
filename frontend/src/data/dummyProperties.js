@@ -1,6 +1,5 @@
 /**
- * Property listings for Joseph's Retreat (Phase 1 UI).
- * Replace image URLs with your real links; later phases will load from MongoDB API.
+ * Property listings for Joseph's Retreat
  */
 export const dummyProperties = [
   {
@@ -9,7 +8,7 @@ export const dummyProperties = [
     title: "Amber House",
     location: "Delhi, India",
     description:
-      "A warm, inviting retreat with thoughtful touches throughout. Perfect for couples or small families seeking a calm, comfortable stay at Joseph's Retreat.",
+      "Bathed in golden afternoon light, Amber House is an embrace of warmth — linen-draped beds, a kitchen awaiting quiet breakfasts, and corners designed for long conversations. Ideal for couples and small families who cherish intimacy without sacrificing comfort.",
     images: [
       {
         url: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800",
@@ -38,7 +37,7 @@ export const dummyProperties = [
     title: "Rooftop Serenity",
     location: "Delhi, India",
     description:
-      "Elevated calm with rooftop views and open, airy spaces. Ideal for guests who want a peaceful escape with modern comforts at Joseph's Retreat.",
+      "Elevated above the city's gentle hum, Rooftop Serenity offers open skies and unhurried calm. Sunlit interiors flow toward a private rooftop — a sanctuary for morning coffee, evening wine, and the rare pleasure of doing very little, beautifully.",
     images: [
       {
         url: "https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800",
@@ -63,7 +62,6 @@ export const dummyProperties = [
   },
 ];
 
-/** Find one property by URL slug */
 export function getPropertyBySlug(slug) {
   return dummyProperties.find((p) => p.slug === slug);
 }

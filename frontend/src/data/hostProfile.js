@@ -1,6 +1,5 @@
 /**
- * Host profile content — edit name, bio, and stats here.
- * Replace the image file in src/assets/host/ (see HostProfile.jsx import).
+ * Host profile content
  */
 export const hostProfile = {
   name: "Joel Joseph",
@@ -8,12 +7,11 @@ export const hostProfile = {
   hostingYears: 2,
   city: "Delhi",
   intro:
-    "Hi, I'm Joel. I've been hosting travelers for the past two years and love creating comfortable, memorable stays for guests. Based in Delhi, I focus on making every stay smooth, welcoming, and enjoyable.",
-  // Trust badges shown in the full profile section
+    "I believe a fine stay is measured not in amenities alone, but in the ease with which one settles in. For two years I have opened my homes to travellers seeking something more personal than a reservation — a genuine welcome, a space cared for, and the quiet assurance that someone thoughtful is always near.",
   highlights: [
-    "2 years of hosting experience",
-    "Based in Delhi, India",
-    "Responsive guest communication",
-    "Thoughtfully maintained properties",
+    "Two years of considered hospitality",
+    "Rooted in Delhi, attuned to the city",
+    "Attentive, unhurried guest correspondence",
+    "Residences maintained with exacting care",
   ],
 };

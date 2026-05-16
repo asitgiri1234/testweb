@@ -3,7 +3,7 @@
  */
 export const siteConfig = {
   name: "Joseph's Retreat",
-  tagline: "Direct vacation rental bookings",
+  tagline: "Curated stays, reserved with warmth",
   hostEmail: "asitkg03@gmail.com",
   hostName: "Joel Joseph",
   properties: [

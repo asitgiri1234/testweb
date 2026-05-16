@@ -15,13 +15,13 @@ function Navbar() {
 
         <nav className="navbar__links" aria-label="Main navigation">
           <NavLink to="/properties" className={({ isActive }) => (isActive ? "active" : "")}>
-            Properties
+            Residences
           </NavLink>
           <NavLink to="/about" className={({ isActive }) => (isActive ? "active" : "")}>
-            About
+            Our story
           </NavLink>
           <NavLink to="/contact?inquire=1" className={({ isActive }) => (isActive ? "active" : "")}>
-            Contact
+            Enquire
           </NavLink>
         </nav>
       </div>

@@ -1,32 +1,116 @@
 .hero {
-  background: linear-gradient(135deg, #fff5f5 0%, var(--color-bg) 100%);
-  padding: 4rem 0 3.5rem;
+  position: relative;
+  min-height: 88vh;
+  display: flex;
+  align-items: center;
+  padding: 6rem 0 5rem;
+  overflow: hidden;
+}
+
+.hero__bg {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      105deg,
+      rgba(44, 36, 25, 0.72) 0%,
+      rgba(44, 36, 25, 0.45) 45%,
+      rgba(44, 36, 25, 0.25) 100%
+    ),
+    url("https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1600&q=80") center / cover no-repeat;
+  z-index: 0;
+}
+
+.hero__bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 20% 80%, rgba(184, 115, 74, 0.15), transparent);
+}
+
+.hero__content {
+  position: relative;
+  z-index: 1;
+  max-width: 38rem;
+  color: var(--color-cream);
 }
 
 .hero__eyebrow {
-  font-size: 0.85rem;
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
   font-weight: 600;
-  color: var(--color-primary);
+  letter-spacing: 0.24em;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-bottom: 0.75rem;
+  color: rgba(250, 246, 240, 0.85);
+  margin-bottom: 1.25rem;
 }
 
 .hero__title {
-  font-size: clamp(1.85rem, 4vw, 2.75rem);
-  line-height: 1.2;
-  margin-bottom: 1rem;
-  max-width: 18ch;
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 500;
+  line-height: 1.1;
+  color: var(--color-cream);
+  margin-bottom: 1.5rem;
+}
+
+.hero__title em {
+  font-style: italic;
+  font-weight: 400;
+  color: #e8d5c4;
 }
 
 .hero__text {
-  color: var(--color-muted);
-  max-width: 42rem;
-  margin-bottom: 1.5rem;
+  font-size: 1.15rem;
+  line-height: 1.8;
+  color: rgba(250, 246, 240, 0.88);
+  margin-bottom: 2rem;
+  max-width: 34rem;
+}
+
+.hero__highlight {
+  color: #e8c9b0;
+  font-weight: 500;
 }
 
 .hero__actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.hero__actions .btn-outline {
+  color: var(--color-cream);
+  border-color: rgba(250, 246, 240, 0.45);
+  background: rgba(250, 246, 240, 0.08);
+  backdrop-filter: blur(8px);
+}
+
+.hero__actions .btn-outline:hover {
+  background: var(--color-cream);
+  color: var(--color-espresso);
+  border-color: var(--color-cream);
+}
+
+.hero__footnote {
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(250, 246, 240, 0.55);
+}
+
+@media (max-width: 640px) {
+  .hero {
+    min-height: 75vh;
+    padding: 5rem 0 4rem;
+  }
+
+  .hero__actions {
+    flex-direction: column;
+  }
+
+  .hero__actions .btn {
+    width: 100%;
+  }
 }

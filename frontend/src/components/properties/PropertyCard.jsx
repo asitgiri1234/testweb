@@ -22,6 +22,7 @@ function PropertyCard({ property }) {
       </Link>
 
       <div className="property-card__body">
+        <p className="property-card__label">Residence</p>
         <h3 className="property-card__title">
           <Link to={`/properties/${property.slug}`}>{property.title}</Link>
         </h3>
@@ -34,7 +35,7 @@ function PropertyCard({ property }) {
           <span> / night</span>
         </p>
         <Link to={`/properties/${property.slug}`} className="btn btn-outline property-card__btn">
-          View details
+          View residence
         </Link>
       </div>
     </article>

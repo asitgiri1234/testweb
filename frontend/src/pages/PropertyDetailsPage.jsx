@@ -16,9 +16,9 @@ function PropertyDetailsPage() {
   if (!property) {
     return (
       <section className="page container">
-        <h1>Property not found</h1>
+        <h1>Residence not found</h1>
         <p>
-          <Link to="/properties">Back to listings</Link>
+          <Link to="/properties">Return to our collection</Link>
         </p>
       </section>
     );
@@ -41,7 +41,7 @@ function PropertyDetailsPage() {
             <PropertyGallery images={property.images} />
 
             <section className="property-details__section">
-              <h2>About this stay</h2>
+              <h2>The residence</h2>
               <p>{property.description}</p>
             </section>
 
@@ -51,7 +51,7 @@ function PropertyDetailsPage() {
 
             {property.rules?.length > 0 && (
               <section className="property-details__section">
-                <h2>House rules</h2>
+                <h2>House etiquette</h2>
                 <ul className="property-details__rules">
                   {property.rules.map((rule) => (
                     <li key={rule}>{rule}</li>

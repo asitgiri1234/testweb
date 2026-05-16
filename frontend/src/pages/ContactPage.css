@@ -1,43 +1,66 @@
 .contact-page__inner {
-  max-width: 520px;
+  max-width: 32rem;
+  margin: 0 auto;
 }
 
 .contact-page__card {
-  padding: 1.5rem;
+  padding: 2.5rem;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  background: var(--color-bg);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-soft);
+  text-align: center;
 }
 
 .contact-page__label {
-  font-size: 0.8rem;
+  font-family: var(--font-ui);
+  font-size: 0.65rem;
   font-weight: 600;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--color-muted);
-  margin-bottom: 0.25rem;
+  color: var(--color-amber);
+  margin-bottom: 0.5rem;
 }
 
 .contact-page__email {
-  font-size: 1.05rem;
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--color-espresso);
   word-break: break-all;
 }
 
+.contact-page__email:hover {
+  color: var(--color-amber);
+  text-decoration: none;
+}
+
 .contact-page__properties {
-  margin: 1.25rem 0;
-  padding-left: 1.25rem;
+  list-style: none;
+  margin: 2rem 0;
+  padding: 1.5rem 0;
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+}
+
+.contact-page__properties li {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-style: italic;
   color: var(--color-muted);
 }
 
 .contact-page__cta {
   width: 100%;
-  text-align: center;
 }
 
 .contact-page__hint {
-  margin-top: 0.75rem;
-  font-size: 0.85rem;
+  margin-top: 1.25rem;
+  font-size: 0.9rem;
+  font-style: italic;
   color: var(--color-muted);
-  text-align: center;
+  line-height: 1.6;
 }

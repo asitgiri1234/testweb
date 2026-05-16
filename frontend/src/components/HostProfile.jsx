@@ -24,9 +24,9 @@ function HostProfile({ variant = "full" }) {
       <div className={isCompact ? "host-profile__card" : "host-profile__inner container"}>
         {!isCompact && (
           <header className="host-profile__header">
-            <p className="host-profile__eyebrow">Meet your host</p>
+            <p className="host-profile__eyebrow">Your host</p>
             <h2 id="host-section-title" className="host-profile__title">
-              Hosted with care by {name.split(" ")[0]}
+              Hospitality, personally extended
             </h2>
           </header>
         )}
@@ -40,8 +40,8 @@ function HostProfile({ variant = "full" }) {
                 className="host-profile__image"
               />
               {!isCompact && (
-                <span className="host-profile__badge" aria-label="Verified host">
-                  Verified host
+                <span className="host-profile__badge" aria-label="Preferred host">
+                  Preferred host
                 </span>
               )}
             </div>
@@ -80,7 +80,7 @@ function HostProfile({ variant = "full" }) {
                 </div>
                 <div className="host-profile__trust-item">
                   <span className="host-profile__trust-value">24/7</span>
-                  <span className="host-profile__trust-label">Guest support</span>
+                  <span className="host-profile__trust-label">Attentive care</span>
                 </div>
                 <div className="host-profile__trust-item">
                   <span className="host-profile__trust-value">100%</span>

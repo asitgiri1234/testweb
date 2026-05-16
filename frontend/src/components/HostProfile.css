@@ -1,11 +1,11 @@
 /* ─── Meet Your Host — luxury hospitality styling ─── */
 
 .host-profile {
-  --host-gold: #b8860b;
-  --host-gold-soft: #f7f3eb;
-  --host-card-bg: #ffffff;
-  --host-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
-  --host-shadow-hover: 0 16px 48px rgba(0, 0, 0, 0.1);
+  --host-accent: var(--color-amber);
+  --host-accent-soft: var(--color-amber-soft);
+  --host-card-bg: var(--color-surface);
+  --host-shadow: var(--shadow-soft);
+  --host-shadow-hover: var(--shadow-medium);
 }
 
 /* Full-width section on homepage */
@@ -37,7 +37,7 @@
   font-weight: 600;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--host-gold);
+  color: var(--host-accent);
   margin-bottom: 0.5rem;
 }
 
@@ -60,7 +60,7 @@
   border-radius: 16px;
   overflow: hidden;
   aspect-ratio: 4 / 5;
-  background: var(--host-gold-soft);
+  background: var(--host-accent-soft);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
@@ -88,8 +88,8 @@
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.04em;
-  color: var(--host-gold);
-  border: 1px solid rgba(184, 134, 11, 0.25);
+  color: var(--host-accent);
+  border: 1px solid rgba(184, 115, 74, 0.25);
   white-space: nowrap;
 }
 
@@ -125,7 +125,7 @@
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: var(--host-gold);
+  background: var(--host-accent);
 }
 
 .host-profile__intro {
@@ -147,10 +147,10 @@
 .host-profile__highlights li {
   font-size: 0.9rem;
   padding: 0.65rem 1rem;
-  background: var(--host-gold-soft);
+  background: var(--host-accent-soft);
   border-radius: 10px;
   color: var(--color-text);
-  border-left: 3px solid var(--host-gold);
+  border-left: 3px solid var(--host-accent);
 }
 
 .host-profile__trust {
@@ -170,7 +170,7 @@
   display: block;
   font-size: 1.35rem;
   font-weight: 700;
-  color: var(--host-gold);
+  color: var(--host-accent);
   letter-spacing: -0.02em;
 }
 
@@ -218,7 +218,7 @@
   font-weight: 600;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: var(--host-gold);
+  color: var(--host-accent);
   margin-bottom: 0.25rem;
 }
 

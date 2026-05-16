@@ -105,7 +105,8 @@ export const sendContactMessage = async (req, res, next) => {
       console.error(`[${requestId}] Resend not configured — missing RESEND_API_KEY`);
       return res.status(503).json({
         success: false,
-        message: "Email service is not configured. Please try again later.",
+        message:
+          "Email service is not configured. Add RESEND_API_KEY to backend/.env and restart the server.",
       });
     }
 
@@ -126,9 +127,13 @@ export const sendContactMessage = async (req, res, next) => {
 
     if (error) {
       console.error(`[${requestId}] Resend API error:`, JSON.stringify(error, null, 2));
+      const detail = error.message || error.name || "Unknown Resend error";
       return res.status(502).json({
         success: false,
-        message: "Unable to deliver your message. Please try again in a few minutes.",
+        message:
+          process.env.NODE_ENV === "production"
+            ? "Unable to deliver your message. Please try again in a few minutes."
+            : `Email delivery failed: ${detail}`,
       });
     }
 

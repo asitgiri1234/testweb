@@ -1,11 +1,10 @@
 /**
- * Contact host modal — sends inquiries to the host email via FormSubmit
+ * Contact host modal — opens the guest's email app to send directly to the host
  */
 import { useEffect, useRef, useState } from "react";
 import { siteConfig } from "../../config/siteConfig.js";
+import { sendContactViaEmail } from "../../utils/contactEmail.js";
 import "./ContactDialog.css";
-
-const FORM_ENDPOINT = `https://formsubmit.co/ajax/${siteConfig.hostEmail}`;
 
 function ContactDialog({ isOpen, onClose }) {
   const dialogRef = useRef(null);
@@ -35,32 +34,28 @@ function ContactDialog({ isOpen, onClose }) {
 
   if (!isOpen) return null;
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     setStatus("sending");
     setErrorMessage("");
 
     const form = e.target;
-    const data = new FormData(form);
+    const data = {
+      name: form.name.value.trim(),
+      email: form.email.value.trim(),
+      property: form.property.value,
+      message: form.message.value.trim(),
+    };
 
     try {
-      const response = await fetch(FORM_ENDPOINT, {
-        method: "POST",
-        headers: { Accept: "application/json" },
-        body: data,
-      });
-
-      const result = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        throw new Error(result.message || "Unable to send your message. Please try again.");
-      }
-
+      sendContactViaEmail(data);
       setStatus("success");
       form.reset();
-    } catch (err) {
+    } catch {
       setStatus("error");
-      setErrorMessage(err.message || "Something went wrong. Please email us directly.");
+      setErrorMessage(
+        "Could not open your email app. Please email the host directly using the address below."
+      );
     }
   };
 
@@ -95,16 +90,17 @@ function ContactDialog({ isOpen, onClose }) {
           <p className="contact-dialog__eyebrow">{siteConfig.name}</p>
           <h2 id="contact-dialog-title">Send a request to the host</h2>
           <p className="contact-dialog__subtitle">
-            Your message goes directly to{" "}
+            Messages are sent to{" "}
             <a href={`mailto:${siteConfig.hostEmail}`}>{siteConfig.hostEmail}</a>
           </p>
         </header>
 
         {status === "success" ? (
           <div className="contact-dialog__success">
-            <p className="contact-dialog__success-title">Request sent</p>
+            <p className="contact-dialog__success-title">Email app opened</p>
             <p>
-              Thanks for reaching out. {siteConfig.hostName} will reply to your email shortly.
+              Your message is ready in your email app. Tap <strong>Send</strong> to deliver it to{" "}
+              {siteConfig.hostName} at {siteConfig.hostEmail}.
             </p>
             <button type="button" className="btn" onClick={onClose}>
               Close
@@ -112,10 +108,6 @@ function ContactDialog({ isOpen, onClose }) {
           </div>
         ) : (
           <form className="contact-dialog__form" onSubmit={handleSubmit}>
-            <input type="hidden" name="_subject" value={`${siteConfig.name} — New guest inquiry`} />
-            <input type="hidden" name="_template" value="table" />
-            <input type="text" name="_honey" style={{ display: "none" }} tabIndex={-1} autoComplete="off" />
-
             <div className="contact-dialog__field">
               <label htmlFor="contact-name">Your name</label>
               <input
@@ -190,7 +182,7 @@ function ContactDialog({ isOpen, onClose }) {
                 Cancel
               </button>
               <button type="submit" className="btn" disabled={status === "sending"}>
-                {status === "sending" ? "Sending…" : "Send request"}
+                {status === "sending" ? "Opening email…" : "Send request"}
               </button>
             </div>
           </form>

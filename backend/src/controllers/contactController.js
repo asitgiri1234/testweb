@@ -106,7 +106,7 @@ export const sendContactMessage = async (req, res, next) => {
       return res.status(503).json({
         success: false,
         message:
-          "Email service is not configured. Add RESEND_API_KEY to backend/.env and restart the server.",
+          "Email service is not configured. Add RESEND_API_KEY in your server environment variables.",
       });
     }
 

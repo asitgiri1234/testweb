@@ -24,7 +24,7 @@ export async function submitContactEnquiry(payload) {
         ? "Email delivery failed. Please try again shortly."
         : response.status === 503
           ? result.message ||
-            "Email not configured on the server. Add RESEND_API_KEY to backend/.env."
+            "Email not configured on the server. Add RESEND_API_KEY in Vercel environment variables."
           : "Unable to send your enquiry. Please try again.");
 
     const error = new Error(message);

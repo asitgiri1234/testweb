@@ -8,20 +8,41 @@ import { notFound, errorHandler } from "./middleware/errorHandler.js";
 
 const app = express();
 
-const allowedOrigins = [
-  process.env.CLIENT_URL,
-  "http://localhost:5173",
-  "http://127.0.0.1:5173",
-]
-  .filter(Boolean)
-  .map((o) => o.replace(/\/$/, ""));
+function buildAllowedOrigins() {
+  const origins = new Set([
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+  ]);
+
+  if (process.env.CLIENT_URL) {
+    origins.add(process.env.CLIENT_URL.replace(/\/$/, ""));
+  }
+  if (process.env.VERCEL_URL) {
+    origins.add(`https://${process.env.VERCEL_URL.replace(/\/$/, "")}`);
+  }
+  if (process.env.VERCEL_BRANCH_URL) {
+    origins.add(process.env.VERCEL_BRANCH_URL.replace(/\/$/, ""));
+  }
+
+  return origins;
+}
+
+const allowedOrigins = buildAllowedOrigins();
+
+function isOriginAllowed(origin) {
+  if (!origin) return true;
+  const normalized = origin.replace(/\/$/, "");
+  if (allowedOrigins.has(normalized)) return true;
+  if (normalized.endsWith(".vercel.app")) return true;
+  return false;
+}
 
 app.use(express.json({ limit: "32kb" }));
 
 app.use(
   cors({
     origin(origin, callback) {
-      if (!origin || allowedOrigins.includes(origin.replace(/\/$/, ""))) {
+      if (isOriginAllowed(origin)) {
         callback(null, true);
       } else {
         console.warn(`CORS blocked origin: ${origin}`);

@@ -1,17 +1,20 @@
 /**
  * About page — host / brand story (static for Phase 1)
  */
+import { siteConfig } from "../config/siteConfig.js";
+
 function AboutPage() {
   return (
     <section className="page">
       <div className="container" style={{ maxWidth: "720px" }}>
-        <h1 className="page-title">About StayDirect</h1>
+        <h1 className="page-title">About {siteConfig.name}</h1>
         <p className="page-subtitle">
-          A direct booking platform for vacation rentals — built for hosts and guests.
+          A direct booking home for {siteConfig.properties[0].label} and{" "}
+          {siteConfig.properties[1].label} in Delhi.
         </p>
 
         <p style={{ marginBottom: "1rem" }}>
-          StayDirect lets you browse properties, check availability, and book without
+          {siteConfig.name} lets you browse our two stays, check availability, and book without
           paying platform commissions. Payments are processed securely through Razorpay.
         </p>
 

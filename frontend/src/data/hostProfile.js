@@ -3,7 +3,7 @@
  * Replace the image file in src/assets/host/ (see HostProfile.jsx import).
  */
 export const hostProfile = {
-  name: "Joel Jozeph",
+  name: "Joel Joseph",
   age: 23,
   hostingYears: 2,
   city: "Delhi",

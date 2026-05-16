@@ -2,6 +2,7 @@
  * Site navigation — links to all main pages
  */
 import { NavLink } from "react-router-dom";
+import { siteConfig } from "../../config/siteConfig.js";
 import "./Navbar.css";
 
 function Navbar() {
@@ -9,7 +10,7 @@ function Navbar() {
     <header className="navbar">
       <div className="container navbar__inner">
         <NavLink to="/" className="navbar__logo">
-          StayDirect
+          {siteConfig.name}
         </NavLink>
 
         <nav className="navbar__links" aria-label="Main navigation">
@@ -19,7 +20,7 @@ function Navbar() {
           <NavLink to="/about" className={({ isActive }) => (isActive ? "active" : "")}>
             About
           </NavLink>
-          <NavLink to="/contact" className={({ isActive }) => (isActive ? "active" : "")}>
+          <NavLink to="/contact?inquire=1" className={({ isActive }) => (isActive ? "active" : "")}>
             Contact
           </NavLink>
         </nav>

@@ -1,49 +1,55 @@
 /**
- * Contact page — static form shell (submission wired in a later phase)
+ * Contact page — host inquiries via modal dialog (email to host)
  */
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import ContactDialog from "../components/contact/ContactDialog.jsx";
+import { siteConfig } from "../config/siteConfig.js";
 import "./ContactPage.css";
 
 function ContactPage() {
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    alert("Contact form will connect to the backend in a later phase.");
-  };
+  const [searchParams] = useSearchParams();
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get("inquire") === "1") {
+      setDialogOpen(true);
+    }
+  }, [searchParams]);
 
   return (
-    <section className="page">
-      <div className="container" style={{ maxWidth: "520px" }}>
-        <h1 className="page-title">Contact us</h1>
+    <section className="page contact-page">
+      <div className="container contact-page__inner">
+        <h1 className="page-title">Contact {siteConfig.name}</h1>
         <p className="page-subtitle">
-          Questions about a property or booking? Send us a message.
+          Questions about {siteConfig.properties[0].label} or {siteConfig.properties[1].label}?
+          Send a direct request to the host.
         </p>
 
-        <form onSubmit={handleSubmit} className="contact-form">
-          <div className="contact-form__field">
-            <label htmlFor="name">Name</label>
-            <input id="name" name="name" type="text" required placeholder="Your name" />
+        <div className="contact-page__card">
+          <div className="contact-page__host">
+            <p className="contact-page__label">Host email</p>
+            <a className="contact-page__email" href={`mailto:${siteConfig.hostEmail}`}>
+              {siteConfig.hostEmail}
+            </a>
           </div>
 
-          <div className="contact-form__field">
-            <label htmlFor="email">Email</label>
-            <input id="email" name="email" type="email" required placeholder="you@email.com" />
-          </div>
+          <ul className="contact-page__properties">
+            {siteConfig.properties.map((p) => (
+              <li key={p.id}>{p.label}</li>
+            ))}
+          </ul>
 
-          <div className="contact-form__field">
-            <label htmlFor="message">Message</label>
-            <textarea
-              id="message"
-              name="message"
-              rows={5}
-              required
-              placeholder="How can we help?"
-            />
-          </div>
-
-          <button type="submit" className="btn">
-            Send message
+          <button type="button" className="btn contact-page__cta" onClick={() => setDialogOpen(true)}>
+            Open contact form
           </button>
-        </form>
+          <p className="contact-page__hint">
+            Fill in the form and your message is delivered straight to the host&apos;s inbox.
+          </p>
+        </div>
       </div>
+
+      <ContactDialog isOpen={dialogOpen} onClose={() => setDialogOpen(false)} />
     </section>
   );
 }

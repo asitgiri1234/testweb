@@ -1,26 +1,37 @@
 /**
- * Contact host modal — sends inquiries directly to the host via the backend API
+ * Contact host modal — sends enquiries via backend + Resend
  */
 import { useEffect, useRef, useState } from "react";
+import { submitContactEnquiry } from "../../api/contact.js";
 import { siteConfig } from "../../config/siteConfig.js";
 import "./ContactDialog.css";
 
-const API_URL = import.meta.env.VITE_API_URL || "/api";
+const INITIAL_FORM = {
+  name: "",
+  email: "",
+  phone: "",
+  property: "",
+  message: "",
+};
 
 function ContactDialog({ isOpen, onClose }) {
   const dialogRef = useRef(null);
+  const [form, setForm] = useState(INITIAL_FORM);
   const [status, setStatus] = useState("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [submittedEmail, setSubmittedEmail] = useState("");
 
   useEffect(() => {
     if (!isOpen) {
       setStatus("idle");
       setErrorMessage("");
+      setFieldErrors({});
       return;
     }
 
     const handleKeyDown = (e) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape" && status !== "sending") onClose();
     };
 
     document.addEventListener("keydown", handleKeyDown);
@@ -31,51 +42,75 @@ function ContactDialog({ isOpen, onClose }) {
       document.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = "";
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, status]);
 
-  if (!isOpen) return null;
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+    if (fieldErrors[name]) {
+      setFieldErrors((prev) => ({ ...prev, [name]: null }));
+    }
+  };
+
+  const validateClient = () => {
+    const errors = {};
+    if (!form.name.trim() || form.name.trim().length < 2) {
+      errors.name = "Enter your full name (at least 2 characters).";
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+      errors.email = "Enter a valid email address.";
+    }
+    if (!/^[+]?[\d\s()-]{7,20}$/.test(form.phone.trim())) {
+      errors.phone = "Enter a valid phone number.";
+    }
+    if (!form.message.trim() || form.message.trim().length < 10) {
+      errors.message = "Message must be at least 10 characters.";
+    }
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setStatus("sending");
     setErrorMessage("");
 
-    const form = e.target;
+    if (!validateClient()) return;
+
+    setStatus("sending");
+
     const payload = {
-      name: form.name.value.trim(),
-      email: form.email.value.trim(),
-      property: form.property.value,
-      message: form.message.value.trim(),
+      name: form.name.trim(),
+      email: form.email.trim(),
+      phone: form.phone.trim(),
+      property: form.property || "General inquiry",
+      message: form.message.trim(),
     };
 
     try {
-      const response = await fetch(`${API_URL}/contact`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      const result = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        throw new Error(result.message || "Unable to send your message. Please try again.");
-      }
-
+      await submitContactEnquiry(payload);
+      setSubmittedEmail(payload.email);
       setStatus("success");
-      form.reset();
+      setForm(INITIAL_FORM);
+      setErrorMessage("");
     } catch (err) {
       setStatus("error");
-      setErrorMessage(
-        err.message === "Failed to fetch"
-          ? "Could not reach the server. Please make sure the backend is running."
-          : err.message || "Something went wrong. Please try again."
-      );
+      if (err.message === "Failed to fetch") {
+        setErrorMessage(
+          "Could not reach the server. Start the backend (npm run dev in /backend) and try again."
+        );
+      } else {
+        setErrorMessage(err.message);
+      }
     }
   };
 
   const handleBackdropClick = (e) => {
-    if (e.target === e.currentTarget) onClose();
+    if (e.target === e.currentTarget && status !== "sending") onClose();
   };
+
+  if (!isOpen) return null;
+
+  const isSending = status === "sending";
 
   return (
     <div
@@ -95,6 +130,7 @@ function ContactDialog({ isOpen, onClose }) {
           type="button"
           className="contact-dialog__close"
           onClick={onClose}
+          disabled={isSending}
           aria-label="Close contact form"
         >
           &times;
@@ -102,36 +138,45 @@ function ContactDialog({ isOpen, onClose }) {
 
         <header className="contact-dialog__header">
           <p className="contact-dialog__eyebrow">{siteConfig.name}</p>
-          <h2 id="contact-dialog-title">Send a request to the host</h2>
+          <h2 id="contact-dialog-title">Contact the host</h2>
           <p className="contact-dialog__subtitle">
-            Your message is delivered to{" "}
+            Enquiries are sent to{" "}
             <a href={`mailto:${siteConfig.hostEmail}`}>{siteConfig.hostEmail}</a>
           </p>
         </header>
 
         {status === "success" ? (
-          <div className="contact-dialog__success">
-            <p className="contact-dialog__success-title">Message sent</p>
+          <div className="contact-dialog__success" role="status">
+            <p className="contact-dialog__success-title">Enquiry sent</p>
             <p>
-              Your request was sent to {siteConfig.hostName}. You will receive a reply at the
-              email address you provided.
+              Your message was delivered to {siteConfig.hostName}. You will receive a reply at{" "}
+              <strong>{submittedEmail}</strong>.
             </p>
             <button type="button" className="btn" onClick={onClose}>
               Close
             </button>
           </div>
         ) : (
-          <form className="contact-dialog__form" onSubmit={handleSubmit}>
+          <form className="contact-dialog__form" onSubmit={handleSubmit} noValidate>
             <div className="contact-dialog__field">
               <label htmlFor="contact-name">Your name</label>
               <input
                 id="contact-name"
                 name="name"
                 type="text"
+                value={form.name}
+                onChange={handleChange}
                 required
                 placeholder="Your full name"
-                disabled={status === "sending"}
+                disabled={isSending}
+                aria-invalid={Boolean(fieldErrors.name)}
+                aria-describedby={fieldErrors.name ? "contact-name-error" : undefined}
               />
+              {fieldErrors.name && (
+                <span id="contact-name-error" className="contact-dialog__field-error">
+                  {fieldErrors.name}
+                </span>
+              )}
             </div>
 
             <div className="contact-dialog__field">
@@ -140,46 +185,82 @@ function ContactDialog({ isOpen, onClose }) {
                 id="contact-email"
                 name="email"
                 type="email"
+                value={form.email}
+                onChange={handleChange}
                 required
                 placeholder="you@email.com"
-                disabled={status === "sending"}
+                disabled={isSending}
+                aria-invalid={Boolean(fieldErrors.email)}
+                aria-describedby={fieldErrors.email ? "contact-email-error" : undefined}
               />
+              {fieldErrors.email && (
+                <span id="contact-email-error" className="contact-dialog__field-error">
+                  {fieldErrors.email}
+                </span>
+              )}
             </div>
 
             <div className="contact-dialog__field">
-              <label htmlFor="contact-property">Property</label>
+              <label htmlFor="contact-phone">Phone number</label>
+              <input
+                id="contact-phone"
+                name="phone"
+                type="tel"
+                value={form.phone}
+                onChange={handleChange}
+                required
+                placeholder="+91 98765 43210"
+                disabled={isSending}
+                aria-invalid={Boolean(fieldErrors.phone)}
+                aria-describedby={fieldErrors.phone ? "contact-phone-error" : undefined}
+              />
+              {fieldErrors.phone && (
+                <span id="contact-phone-error" className="contact-dialog__field-error">
+                  {fieldErrors.phone}
+                </span>
+              )}
+            </div>
+
+            <div className="contact-dialog__field">
+              <label htmlFor="contact-property">Property (optional)</label>
               <select
                 id="contact-property"
                 name="property"
-                required
-                defaultValue=""
-                disabled={status === "sending"}
+                value={form.property}
+                onChange={handleChange}
+                disabled={isSending}
               >
-                <option value="" disabled>
-                  Select a property
-                </option>
+                <option value="">General inquiry</option>
                 {siteConfig.properties.map((p) => (
                   <option key={p.id} value={p.label}>
                     {p.label}
                   </option>
                 ))}
-                <option value="General inquiry">General inquiry</option>
               </select>
             </div>
 
             <div className="contact-dialog__field">
-              <label htmlFor="contact-message">Message</label>
+              <label htmlFor="contact-message">Your message</label>
               <textarea
                 id="contact-message"
                 name="message"
                 rows={4}
+                value={form.message}
+                onChange={handleChange}
                 required
-                placeholder="Dates, number of guests, or any questions…"
-                disabled={status === "sending"}
+                placeholder="Dates, number of guests, questions…"
+                disabled={isSending}
+                aria-invalid={Boolean(fieldErrors.message)}
+                aria-describedby={fieldErrors.message ? "contact-message-error" : undefined}
               />
+              {fieldErrors.message && (
+                <span id="contact-message-error" className="contact-dialog__field-error">
+                  {fieldErrors.message}
+                </span>
+              )}
             </div>
 
-            {status === "error" && (
+            {status === "error" && errorMessage && (
               <p className="contact-dialog__error" role="alert">
                 {errorMessage}
               </p>
@@ -190,12 +271,19 @@ function ContactDialog({ isOpen, onClose }) {
                 type="button"
                 className="btn btn-outline"
                 onClick={onClose}
-                disabled={status === "sending"}
+                disabled={isSending}
               >
                 Cancel
               </button>
-              <button type="submit" className="btn" disabled={status === "sending"}>
-                {status === "sending" ? "Sending…" : "Send request"}
+              <button type="submit" className="btn" disabled={isSending}>
+                {isSending ? (
+                  <>
+                    <span className="contact-dialog__spinner" aria-hidden="true" />
+                    Sending…
+                  </>
+                ) : (
+                  "Send enquiry"
+                )}
               </button>
             </div>
           </form>

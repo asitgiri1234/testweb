@@ -1,90 +1,145 @@
 /**
- * Contact form — sends guest inquiries to the host inbox via SMTP
+ * Contact form — validates enquiry and sends via Resend to the host inbox.
  */
-import nodemailer from "nodemailer";
+import { emailConfig, getResendClient, isEmailConfigured } from "../config/email.js";
 
-const HOST_EMAIL = process.env.HOST_EMAIL || "joeljoseph2003871@gmail.com";
-const SITE_NAME = process.env.SITE_NAME || "Joseph's Retreat";
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_REGEX = /^[+]?[\d\s()-]{7,20}$/;
 
-function createTransporter() {
-  const user = process.env.SMTP_USER;
-  const pass = process.env.SMTP_PASS;
+function escapeHtml(text) {
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
 
-  if (!user || !pass) {
-    return null;
+function validateContactBody(body) {
+  const errors = [];
+  const name = body.name?.trim() ?? "";
+  const email = body.email?.trim() ?? "";
+  const phone = body.phone?.trim() ?? "";
+  const message = body.message?.trim() ?? "";
+  const property = body.property?.trim() ?? "General inquiry";
+
+  if (!name || name.length < 2) {
+    errors.push("Name must be at least 2 characters.");
+  }
+  if (name.length > 100) {
+    errors.push("Name must be under 100 characters.");
+  }
+  if (!email || !EMAIL_REGEX.test(email)) {
+    errors.push("A valid email address is required.");
+  }
+  if (!phone || !PHONE_REGEX.test(phone)) {
+    errors.push("A valid phone number is required (7–20 digits).");
+  }
+  if (!message || message.length < 10) {
+    errors.push("Message must be at least 10 characters.");
+  }
+  if (message.length > 5000) {
+    errors.push("Message must be under 5000 characters.");
   }
 
-  return nodemailer.createTransport({
-    host: process.env.SMTP_HOST || "smtp.gmail.com",
-    port: Number(process.env.SMTP_PORT) || 587,
-    secure: false,
-    auth: { user, pass },
-  });
+  if (errors.length > 0) {
+    return { ok: false, errors };
+  }
+
+  return {
+    ok: true,
+    data: { name, email, phone, message, property },
+  };
+}
+
+function buildEnquiryEmail({ name, email, phone, message, property }) {
+  const { siteName } = emailConfig;
+  const subject = `${siteName} — Enquiry from ${name}${property !== "General inquiry" ? ` (${property})` : ""}`;
+
+  const text = [
+    `New enquiry for ${siteName}`,
+    "",
+    `Name: ${name}`,
+    `Email: ${email}`,
+    `Phone: ${phone}`,
+    `Property: ${property}`,
+    "",
+    "Message:",
+    message,
+  ].join("\n");
+
+  const html = `
+    <div style="font-family: system-ui, sans-serif; max-width: 560px; color: #222;">
+      <h2 style="margin: 0 0 16px;">New enquiry — ${escapeHtml(siteName)}</h2>
+      <table style="border-collapse: collapse; width: 100%;">
+        <tr><td style="padding: 6px 12px 6px 0; color: #717171;">Name</td><td><strong>${escapeHtml(name)}</strong></td></tr>
+        <tr><td style="padding: 6px 12px 6px 0; color: #717171;">Email</td><td><a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a></td></tr>
+        <tr><td style="padding: 6px 12px 6px 0; color: #717171;">Phone</td><td>${escapeHtml(phone)}</td></tr>
+        <tr><td style="padding: 6px 12px 6px 0; color: #717171;">Property</td><td>${escapeHtml(property)}</td></tr>
+      </table>
+      <h3 style="margin: 20px 0 8px;">Message</h3>
+      <p style="white-space: pre-wrap; line-height: 1.6;">${escapeHtml(message)}</p>
+      <p style="margin-top: 24px; font-size: 12px; color: #717171;">Reply to this email to respond directly to the guest.</p>
+    </div>
+  `;
+
+  return { subject, text, html };
 }
 
 export const sendContactMessage = async (req, res, next) => {
+  const requestId = `contact-${Date.now()}`;
+
   try {
-    const { name, email, property, message } = req.body;
+    console.log(`[${requestId}] Contact enquiry received`);
 
-    if (!name?.trim() || !email?.trim() || !property?.trim() || !message?.trim()) {
+    const validation = validateContactBody(req.body);
+    if (!validation.ok) {
+      console.warn(`[${requestId}] Validation failed:`, validation.errors);
       return res.status(400).json({
         success: false,
-        message: "Please fill in all fields.",
+        message: validation.errors[0],
+        errors: validation.errors,
       });
     }
 
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailPattern.test(email.trim())) {
-      return res.status(400).json({
-        success: false,
-        message: "Please enter a valid email address.",
-      });
-    }
-
-    const transporter = createTransporter();
-    if (!transporter) {
+    if (!isEmailConfigured()) {
+      console.error(`[${requestId}] Resend not configured — missing RESEND_API_KEY`);
       return res.status(503).json({
         success: false,
-        message: "Email service is not configured. Contact the site administrator.",
+        message: "Email service is not configured. Please try again later.",
       });
     }
 
-    const guestName = name.trim();
-    const guestEmail = email.trim();
-    const propertyName = property.trim();
-    const guestMessage = message.trim();
+    const resend = getResendClient();
+    const { name, email, phone, message, property } = validation.data;
+    const { subject, text, html } = buildEnquiryEmail(validation.data);
 
-    await transporter.sendMail({
-      from: `"${SITE_NAME}" <${process.env.SMTP_USER}>`,
-      to: HOST_EMAIL,
-      replyTo: `"${guestName}" <${guestEmail}>`,
-      subject: `${SITE_NAME} — Inquiry from ${guestName} (${propertyName})`,
-      text: [
-        `New inquiry for ${SITE_NAME}`,
-        "",
-        `Guest name: ${guestName}`,
-        `Guest email: ${guestEmail}`,
-        `Property: ${propertyName}`,
-        "",
-        "Message:",
-        guestMessage,
-      ].join("\n"),
-      html: `
-        <h2>New inquiry for ${SITE_NAME}</h2>
-        <p><strong>Guest name:</strong> ${guestName}</p>
-        <p><strong>Guest email:</strong> <a href="mailto:${guestEmail}">${guestEmail}</a></p>
-        <p><strong>Property:</strong> ${propertyName}</p>
-        <p><strong>Message:</strong></p>
-        <p>${guestMessage.replace(/\n/g, "<br>")}</p>
-      `,
+    console.log(`[${requestId}] Sending to host: ${emailConfig.hostEmail}`);
+
+    const { data, error } = await resend.emails.send({
+      from: emailConfig.fromAddress,
+      to: [emailConfig.hostEmail],
+      replyTo: email,
+      subject,
+      text,
+      html,
     });
 
-    res.json({
+    if (error) {
+      console.error(`[${requestId}] Resend API error:`, JSON.stringify(error, null, 2));
+      return res.status(502).json({
+        success: false,
+        message: "Unable to deliver your message. Please try again in a few minutes.",
+      });
+    }
+
+    console.log(`[${requestId}] Email sent successfully. Resend id: ${data?.id}`);
+
+    return res.status(200).json({
       success: true,
-      message: "Your message has been sent to the host.",
+      message: "Your enquiry has been sent. The host will reply to your email shortly.",
     });
   } catch (err) {
-    console.error("Contact email error:", err);
-    next(err);
+    console.error(`[${requestId}] Unexpected error:`, err);
+    return next(err);
   }
 };

@@ -1,6 +1,5 @@
 /**
  * Express application setup.
- * Routes are mounted here; controllers handle business logic.
  */
 import express from "express";
 import cors from "cors";
@@ -9,26 +8,42 @@ import { notFound, errorHandler } from "./middleware/errorHandler.js";
 
 const app = express();
 
-// Parse JSON request bodies (needed for booking forms later)
-app.use(express.json());
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+]
+  .filter(Boolean)
+  .map((o) => o.replace(/\/$/, ""));
 
-// Allow frontend (Vite) to call this API during development
+app.use(express.json({ limit: "32kb" }));
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin(origin, callback) {
+      if (!origin || allowedOrigins.includes(origin.replace(/\/$/, ""))) {
+        callback(null, true);
+      } else {
+        console.warn(`CORS blocked origin: ${origin}`);
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
-// Health check — useful to verify the server is alive
 app.get("/api/health", (req, res) => {
-  res.json({ status: "ok", message: "Vacation rental API is running" });
+  res.json({
+    status: "ok",
+    message: "Vacation rental API is running",
+    emailConfigured: Boolean(process.env.RESEND_API_KEY?.trim()),
+  });
 });
 
-// All API routes live under /api
 app.use("/api", apiRoutes);
 
-// 404 and global error handling
 app.use(notFound);
 app.use(errorHandler);
 

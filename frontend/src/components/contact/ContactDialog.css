@@ -107,12 +107,37 @@
   margin-top: 0.25rem;
 }
 
+.contact-dialog__field-error {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.8rem;
+  color: #b42318;
+}
+
 .contact-dialog__error {
   font-size: 0.9rem;
   color: #b42318;
   padding: 0.5rem 0.75rem;
   background: #fef3f2;
   border-radius: 8px;
+}
+
+.contact-dialog__spinner {
+  display: inline-block;
+  width: 0.9rem;
+  height: 0.9rem;
+  margin-right: 0.4rem;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: contact-dialog-spin 0.7s linear infinite;
+  vertical-align: -0.15em;
+}
+
+@keyframes contact-dialog-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .contact-dialog__success {

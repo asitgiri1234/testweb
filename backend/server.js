@@ -1,20 +1,19 @@
 /**
- * Entry point — loads environment variables and starts the HTTP server.
- * Keep this file small; app logic lives in src/app.js
+ * Entry point — load env first, then start Express + MongoDB.
  */
-import dotenv from "dotenv";
+import "dotenv/config";
 import app from "./src/app.js";
 import connectDB from "./src/config/db.js";
 
-dotenv.config();
-
 const PORT = process.env.PORT || 5000;
 
-// Connect to MongoDB, then start listening for requests
 connectDB()
   .then(() => {
     app.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
+      if (!process.env.RESEND_API_KEY?.trim()) {
+        console.warn("WARNING: RESEND_API_KEY is not set — contact form emails will not send.");
+      }
     });
   })
   .catch((err) => {

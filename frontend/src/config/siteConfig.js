@@ -4,7 +4,7 @@
 export const siteConfig = {
   name: "Joseph's Retreat",
   tagline: "Curated stays, reserved with warmth",
-  hostEmail: "asitkg03@gmail.com",
+  hostEmail: "joeljoseph2003871@gmail.com",
   hostName: "Joel Joseph",
   properties: [
     { id: "amber-house", label: "Amber House" },

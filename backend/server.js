@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 5000;
 function startServer() {
   app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
-    console.log(`Host email: ${process.env.HOST_EMAIL || "asitkg03@gmail.com"}`);
+    console.log(`Host email: ${process.env.HOST_EMAIL || "joeljoseph2003871@gmail.com"}`);
     if (process.env.RESEND_API_KEY?.trim()) {
       console.log("Resend: configured");
     } else {

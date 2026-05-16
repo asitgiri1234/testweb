@@ -19,7 +19,7 @@ export function getResendClient() {
 
 export const emailConfig = {
   get hostEmail() {
-    return process.env.HOST_EMAIL?.trim() || "joeljoseph2003871@gmail.com";
+    return process.env.HOST_EMAIL?.trim() || "asitkg03@gmail.com";
   },
   get fromAddress() {
     return (

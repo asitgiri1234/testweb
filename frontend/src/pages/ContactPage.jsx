@@ -44,8 +44,7 @@ function ContactPage() {
             Open contact form
           </button>
           <p className="contact-page__hint">
-            Fill in the form — your email app opens with a message addressed to the host. Tap Send
-            to deliver it.
+            Fill in the form and click Send — your message is delivered directly to the host.
           </p>
         </div>
       </div>

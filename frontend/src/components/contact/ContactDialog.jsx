@@ -1,10 +1,11 @@
 /**
- * Contact host modal — opens the guest's email app to send directly to the host
+ * Contact host modal — sends inquiries directly to the host via the backend API
  */
 import { useEffect, useRef, useState } from "react";
 import { siteConfig } from "../../config/siteConfig.js";
-import { sendContactViaEmail } from "../../utils/contactEmail.js";
 import "./ContactDialog.css";
+
+const API_URL = import.meta.env.VITE_API_URL || "/api";
 
 function ContactDialog({ isOpen, onClose }) {
   const dialogRef = useRef(null);
@@ -34,13 +35,13 @@ function ContactDialog({ isOpen, onClose }) {
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus("sending");
     setErrorMessage("");
 
     const form = e.target;
-    const data = {
+    const payload = {
       name: form.name.value.trim(),
       email: form.email.value.trim(),
       property: form.property.value,
@@ -48,13 +49,26 @@ function ContactDialog({ isOpen, onClose }) {
     };
 
     try {
-      sendContactViaEmail(data);
+      const response = await fetch(`${API_URL}/contact`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(result.message || "Unable to send your message. Please try again.");
+      }
+
       setStatus("success");
       form.reset();
-    } catch {
+    } catch (err) {
       setStatus("error");
       setErrorMessage(
-        "Could not open your email app. Please email the host directly using the address below."
+        err.message === "Failed to fetch"
+          ? "Could not reach the server. Please make sure the backend is running."
+          : err.message || "Something went wrong. Please try again."
       );
     }
   };
@@ -90,17 +104,17 @@ function ContactDialog({ isOpen, onClose }) {
           <p className="contact-dialog__eyebrow">{siteConfig.name}</p>
           <h2 id="contact-dialog-title">Send a request to the host</h2>
           <p className="contact-dialog__subtitle">
-            Messages are sent to{" "}
+            Your message is delivered to{" "}
             <a href={`mailto:${siteConfig.hostEmail}`}>{siteConfig.hostEmail}</a>
           </p>
         </header>
 
         {status === "success" ? (
           <div className="contact-dialog__success">
-            <p className="contact-dialog__success-title">Email app opened</p>
+            <p className="contact-dialog__success-title">Message sent</p>
             <p>
-              Your message is ready in your email app. Tap <strong>Send</strong> to deliver it to{" "}
-              {siteConfig.hostName} at {siteConfig.hostEmail}.
+              Your request was sent to {siteConfig.hostName}. You will receive a reply at the
+              email address you provided.
             </p>
             <button type="button" className="btn" onClick={onClose}>
               Close
@@ -167,8 +181,7 @@ function ContactDialog({ isOpen, onClose }) {
 
             {status === "error" && (
               <p className="contact-dialog__error" role="alert">
-                {errorMessage}{" "}
-                <a href={`mailto:${siteConfig.hostEmail}`}>Email {siteConfig.hostEmail}</a> instead.
+                {errorMessage}
               </p>
             )}
 
@@ -182,7 +195,7 @@ function ContactDialog({ isOpen, onClose }) {
                 Cancel
               </button>
               <button type="submit" className="btn" disabled={status === "sending"}>
-                {status === "sending" ? "Opening email…" : "Send request"}
+                {status === "sending" ? "Sending…" : "Send request"}
               </button>
             </div>
           </form>

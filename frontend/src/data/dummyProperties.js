@@ -3,6 +3,17 @@
  */
 import { amberHouseImages } from "./amberHouseImages.js";
 import { rooftopSerenityImages } from "./rooftopSerenityImages.js";
+import {
+  PROPERTY_ADDRESS,
+  PROPERTY_AREA_LABEL,
+  getGoogleMapsUrl,
+} from "../config/propertyLocation.js";
+
+const sharedLocation = {
+  area: PROPERTY_AREA_LABEL,
+  address: PROPERTY_ADDRESS,
+  mapsUrl: getGoogleMapsUrl(),
+};
 
 export const dummyProperties = [
   {
@@ -10,7 +21,8 @@ export const dummyProperties = [
     slug: "amber-house",
     calendarSlug: "property-1",
     title: "Amber House",
-    location: "Delhi, India",
+    location: PROPERTY_AREA_LABEL,
+    ...sharedLocation,
     description:
       "Your cozy city escape — warm interiors, fully equipped kitchen, and modern amenities minutes from the metro.",
     descriptionSections: [
@@ -45,7 +57,8 @@ export const dummyProperties = [
     slug: "rooftop-serenity",
     calendarSlug: "property-2",
     title: "Rooftop Serenity",
-    location: "Delhi, India",
+    location: PROPERTY_AREA_LABEL,
+    ...sharedLocation,
     description:
       "Peaceful 4th-floor stay with a movie hall, HD projector, speaker system, and a mini game room for couples.",
     descriptionSections: [

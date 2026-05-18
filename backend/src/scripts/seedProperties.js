@@ -18,7 +18,13 @@ const properties = [
     airbnbIcalUrl: AIRBNB_ICAL_AMBER_HOUSE,
     description:
       "Your cozy city escape — warm interiors, fully equipped kitchen, and modern amenities minutes from the metro.",
-    location: { city: "Delhi", country: "India" },
+    location: {
+      city: "Delhi",
+      country: "India",
+      area: "Rohini",
+      address:
+        "Rohini Sector 15 F Block 19/53, Rohini Pocket 19 House Number 53, Vaishno Dairy, Delhi, India",
+    },
     images: [],
     amenities: ["WiFi", "Air conditioning", "Full kitchen", "Smart TV", "Projector"],
     minGuests: 3,
@@ -38,7 +44,13 @@ const properties = [
     airbnbIcalUrl: AIRBNB_ICAL_ROOFTOP_SERENITY,
     description:
       "Peaceful 4th-floor stay with a movie hall, HD projector, and mini game room.",
-    location: { city: "Delhi", country: "India" },
+    location: {
+      city: "Delhi",
+      country: "India",
+      area: "Rohini",
+      address:
+        "Rohini Sector 15 F Block 19/53, Rohini Pocket 19 House Number 53, Vaishno Dairy, Delhi, India",
+    },
     images: [],
     amenities: ["WiFi", "Full kitchen", "HD projector", "Movie hall"],
     minGuests: 3,

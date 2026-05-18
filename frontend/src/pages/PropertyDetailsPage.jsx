@@ -60,6 +60,25 @@ function PropertyDetailsPage() {
                 </ul>
               </section>
             )}
+
+            {property.address && (
+              <section className="property-details__section property-details__map">
+                <h2>Location</h2>
+                <p className="property-details__map-area">{property.location}</p>
+                <a
+                  href={property.mapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="property-details__map-link"
+                >
+                  <span className="property-details__map-icon" aria-hidden="true">
+                    📍
+                  </span>
+                  <span>{property.address}</span>
+                  <span className="property-details__map-cta">Open in Google Maps</span>
+                </a>
+              </section>
+            )}
           </div>
 
           <BookingWidget property={property} compact showCalendar={false} />

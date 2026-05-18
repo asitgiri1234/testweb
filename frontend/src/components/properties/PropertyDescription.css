@@ -1,0 +1,19 @@
+.property-description__warnings {
+  list-style: none;
+  margin: 1.25rem 0 0;
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius-md);
+  background: rgba(184, 115, 74, 0.1);
+  border-left: 3px solid var(--color-amber);
+}
+
+.property-description__warnings li {
+  color: var(--color-espresso);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 0.35rem;
+}
+
+.property-description__warnings li:last-child {
+  margin-bottom: 0;
+}

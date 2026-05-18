@@ -11,15 +11,32 @@ export const dummyProperties = [
     title: "Amber House",
     location: "Delhi, India",
     description:
-      "Bathed in golden afternoon light, Amber House is an embrace of warmth — linen-draped beds, a kitchen awaiting quiet breakfasts, and corners designed for long conversations. Ideal for couples and small families who cherish intimacy without sacrificing comfort.",
+      "Your cozy city escape — warm interiors, fully equipped kitchen, and modern amenities minutes from the metro.",
+    descriptionSections: [
+      {
+        heading: "About this space",
+        paragraphs: [
+          "Amber House — your cozy city escape.",
+          "Enjoy a first-floor stay with warm interiors, fast Wi-Fi, a fully equipped kitchen, and all modern amenities. Just 5 minutes from the metro and market for ultimate convenience.",
+          "Features 1 master bedroom perfect for couples, families, and working travellers seeking comfort and quality time.",
+        ],
+        warnings: ["⚠️ Quiet hours — from 11pm"],
+      },
+      {
+        heading: "The space",
+        paragraphs: [
+          "Cozy 1.5 BHK with a warm, inviting living room, Smart TV (all OTT platforms), and a peaceful atmosphere surrounded by indoor plants. Features a master bedroom, another movie room with a projector for movie nights, warm ambient lighting, a study lamp for WFH, high-speed Wi-Fi, and a fully equipped kitchen. Comfortable for up to 5 adults.",
+        ],
+      },
+    ],
     images: amberHouseImages,
-    amenities: ["WiFi", "Air conditioning", "Full kitchen", "Self check-in", "Workspace"],
-    maxGuests: 4,
+    amenities: ["WiFi", "Air conditioning", "Full kitchen", "Self check-in", "Workspace", "Smart TV", "Projector"],
+    maxGuests: 5,
     bedrooms: 2,
     bathrooms: 1,
     pricePerNight: 4500,
     cleaningFee: 600,
-    rules: ["No smoking", "No parties", "Quiet hours after 10 PM"],
+    rules: ["No smoking", "No parties", "Quiet hours from 11pm"],
   },
   {
     id: "2",
@@ -27,15 +44,39 @@ export const dummyProperties = [
     title: "Rooftop Serenity",
     location: "Delhi, India",
     description:
-      "Elevated above the city's gentle hum, Rooftop Serenity offers open skies and unhurried calm. Sunlit interiors flow toward a private rooftop — a sanctuary for morning coffee, evening wine, and the rare pleasure of doing very little, beautifully.",
+      "Peaceful 4th-floor stay with a movie hall, HD projector, speaker system, and a mini game room for couples.",
+    descriptionSections: [
+      {
+        heading: "About this space",
+        paragraphs: [
+          "Rooftop Serenity: a peaceful stay at 4th floor — with a movie hall, a HD projector and speaker system.",
+          "Stream your fav shows on Netflix, Prime and Hotstar for a seamless entertainment experience.",
+          "Has a mini game room for couples to play games, read, and spend quality time together.",
+          "Relax and unwind in a beautifully designed master bedroom, an aesthetic showcase of posters and a statement mirror.",
+        ],
+        warnings: [
+          "⚠️ Quiet hours: 11pm–7am",
+          "⚠️ Property doesn't have any lift",
+          "⚠️ Fine ₹500 if electricity is left on",
+        ],
+      },
+      {
+        heading: "Guest access",
+        paragraphs: ["Whole flat"],
+      },
+    ],
     images: rooftopSerenityImages,
-    amenities: ["WiFi", "Rooftop access", "Full kitchen", "Washer", "Balcony", "TV"],
+    amenities: ["WiFi", "Full kitchen", "HD projector", "Speaker system", "Movie hall", "Game room", "TV"],
     maxGuests: 5,
     bedrooms: 2,
     bathrooms: 2,
     pricePerNight: 5800,
     cleaningFee: 800,
-    rules: ["No smoking indoors", "Guests only on rooftop", "Check-out by 11 AM"],
+    rules: [
+      "Quiet hours: 11pm–7am",
+      "No lift in building — 4th floor walk-up",
+      "Fine ₹500 if electricity is left on",
+    ],
   },
 ];
 

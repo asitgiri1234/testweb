@@ -3,6 +3,7 @@
  */
 import { useParams, Link } from "react-router-dom";
 import PropertyGallery from "../components/properties/PropertyGallery.jsx";
+import PropertyDescription from "../components/properties/PropertyDescription.jsx";
 import AmenitiesSection from "../components/properties/AmenitiesSection.jsx";
 import HostProfile from "../components/HostProfile.jsx";
 import BookingWidget from "../components/booking/BookingWidget.jsx";
@@ -40,10 +41,7 @@ function PropertyDetailsPage() {
           <div className="property-details__main">
             <PropertyGallery images={property.images} />
 
-            <section className="property-details__section">
-              <h2>The residence</h2>
-              <p>{property.description}</p>
-            </section>
+            <PropertyDescription sections={property.descriptionSections} />
 
             <AmenitiesSection amenities={property.amenities} />
 

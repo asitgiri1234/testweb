@@ -1,18 +1,21 @@
 /**
- * Homepage hero — welcoming first impression with sliding background photos.
+ * Homepage hero — auto-rotating background photos every 5 seconds.
  */
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { siteConfig } from "../../config/siteConfig.js";
-import heroHomeImage from "../../assets/images/hero-home.png";
-import heroCozyLounge from "../../assets/images/hero-cozy-lounge.png";
-import heroChessEvening from "../../assets/images/hero-chess-evening.png";
+import heroSlide1 from "../../assets/images/hero-slide-1.png";
+import heroSlide2 from "../../assets/images/hero-slide-2.png";
+import heroSlide3 from "../../assets/images/hero-slide-3.png";
 import "./Hero.css";
 
-const heroImages = [heroHomeImage, heroCozyLounge, heroChessEvening];
+const HERO_INTERVAL_MS = 5000;
+
+const heroImages = [heroSlide1, heroSlide2, heroSlide3];
 
 function Hero() {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
   const total = heroImages.length;
 
   const goTo = useCallback(
@@ -25,9 +28,24 @@ function Hero() {
   const goPrev = () => goTo(activeIndex - 1);
   const goNext = () => goTo(activeIndex + 1);
 
+  useEffect(() => {
+    if (isPaused || total <= 1) return undefined;
+
+    const timer = setInterval(() => {
+      setActiveIndex((current) => (current + 1) % total);
+    }, HERO_INTERVAL_MS);
+
+    return () => clearInterval(timer);
+  }, [isPaused, total]);
+
   return (
     <section className="hero">
-      <div className="hero__bg" aria-hidden="true">
+      <div
+        className="hero__bg"
+        aria-hidden="true"
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+      >
         {heroImages.map((image, index) => (
           <div
             key={image}
@@ -53,6 +71,20 @@ function Hero() {
         >
           ›
         </button>
+
+        <div className="hero__dots" role="tablist" aria-label="Hero photos">
+          {heroImages.map((image, index) => (
+            <button
+              key={image}
+              type="button"
+              role="tab"
+              className={`hero__dot ${index === activeIndex ? "hero__dot--active" : ""}`}
+              onClick={() => goTo(index)}
+              aria-label={`Show photo ${index + 1}`}
+              aria-selected={index === activeIndex}
+            />
+          ))}
+        </div>
       </div>
 
       <div className="container hero__content">

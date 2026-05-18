@@ -55,7 +55,7 @@ const properties = [
     amenities: ["WiFi", "Full kitchen", "HD projector", "Movie hall"],
     minGuests: 1,
     maxGuests: 3,
-    bedrooms: 2,
+    bedrooms: 1,
     bathrooms: 1,
     pricePerNight: 1999,
     cleaningFee: 800,

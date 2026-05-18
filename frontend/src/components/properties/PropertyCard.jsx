@@ -43,7 +43,8 @@ function PropertyCard({ property }) {
           {property.minGuests
             ? `${property.minGuests}–${property.maxGuests}`
             : property.maxGuests}{" "}
-          guests · {property.bedrooms} bed · {property.bathrooms} bath
+          guests · {property.bedrooms} {property.bedrooms === 1 ? "bed" : "beds"} ·{" "}
+          {property.bathrooms} {property.bathrooms === 1 ? "bath" : "baths"}
         </p>
         <p className="property-card__price">
           <strong>₹{property.pricePerNight.toLocaleString("en-IN")}</strong>

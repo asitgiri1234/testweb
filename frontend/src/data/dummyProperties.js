@@ -16,8 +16,6 @@ const sharedLocation = {
 };
 
 export const LISTING_RATING = {
-  stars: 5,
-  reviewCount: 100,
   locationLabel: "Rohini Sector 15, New Delhi",
 };
 
@@ -55,8 +53,8 @@ export const dummyProperties = [
     bedrooms: 2,
     bathrooms: 1,
     pricePerNight: 2299,
-    rating: LISTING_RATING.stars,
-    reviewCount: LISTING_RATING.reviewCount,
+    rating: 5,
+    reviewCount: 137,
     cleaningFee: 600,
     rules: ["No smoking", "No parties", "Quiet hours from 11pm"],
   },
@@ -93,11 +91,11 @@ export const dummyProperties = [
     amenities: ["WiFi", "Full kitchen", "HD projector", "Speaker system", "Movie hall", "Game room", "TV"],
     minGuests: 1,
     maxGuests: 3,
-    bedrooms: 2,
+    bedrooms: 1,
     bathrooms: 1,
     pricePerNight: 1999,
-    rating: LISTING_RATING.stars,
-    reviewCount: LISTING_RATING.reviewCount,
+    rating: 5,
+    reviewCount: 149,
     cleaningFee: 800,
     rules: [
       "Quiet hours: 11pm–7am",

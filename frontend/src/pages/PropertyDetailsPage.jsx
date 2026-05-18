@@ -29,13 +29,25 @@ function PropertyDetailsPage() {
     <section className="page property-details">
       <div className="container">
         <header className="property-details__header">
+          <div className="property-details__rating">
+            <span className="property-details__rating-stars">
+              {property.rating ?? 5}★ Rating
+            </span>
+            <span className="property-details__rating-sep" aria-hidden="true">
+              ·
+            </span>
+            <span className="property-details__rating-reviews">
+              ({property.reviewCount ?? 100} Reviews)
+            </span>
+          </div>
           <h1 className="page-title">{property.title}</h1>
           <p className="property-details__location">{property.location}</p>
           <p className="property-details__meta">
             {property.minGuests
               ? `${property.minGuests}–${property.maxGuests}`
               : property.maxGuests}{" "}
-            guests · {property.bedrooms} bedrooms · {property.bathrooms}{" "}
+            guests · {property.bedrooms}{" "}
+            {property.bedrooms === 1 ? "bedroom" : "bedrooms"} · {property.bathrooms}{" "}
             {property.bathrooms === 1 ? "bathroom" : "bathrooms"}
           </p>
         </header>

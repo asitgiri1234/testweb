@@ -48,6 +48,16 @@ export async function createBooking(payload) {
   }
 
   const guestCount = Number(guests) || 1;
+  const minGuests = property.minGuests || 1;
+
+  if (guestCount < minGuests) {
+    const error = new Error(
+      `This property requires at least ${minGuests} guests`,
+    );
+    error.statusCode = 400;
+    throw error;
+  }
+
   if (guestCount > property.maxGuests) {
     const error = new Error(
       `This property allows a maximum of ${property.maxGuests} guests`,

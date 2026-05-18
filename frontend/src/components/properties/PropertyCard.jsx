@@ -28,7 +28,10 @@ function PropertyCard({ property }) {
         </h3>
         <p className="property-card__location">{property.location}</p>
         <p className="property-card__meta">
-          {property.maxGuests} guests · {property.bedrooms} bed · {property.bathrooms} bath
+          {property.minGuests
+            ? `${property.minGuests}–${property.maxGuests}`
+            : property.maxGuests}{" "}
+          guests · {property.bedrooms} bed · {property.bathrooms} bath
         </p>
         <p className="property-card__price">
           <strong>₹{property.pricePerNight.toLocaleString("en-IN")}</strong>

@@ -15,11 +15,14 @@ function BookingWidget({
   showCalendar = true,
   initialCheckIn,
   initialCheckOut,
-  initialGuests = 1,
+  initialGuests,
 }) {
+  const minGuests = property?.minGuests || 1;
+  const maxGuests = property?.maxGuests || 1;
+  const defaultGuests = initialGuests ?? minGuests;
   const [checkIn, setCheckIn] = useState(initialCheckIn);
   const [checkOut, setCheckOut] = useState(initialCheckOut);
-  const [guests, setGuests] = useState(initialGuests);
+  const [guests, setGuests] = useState(defaultGuests);
   const [blockedDates, setBlockedDates] = useState([]);
   const [calendarLoading, setCalendarLoading] = useState(true);
   const [calendarError, setCalendarError] = useState("");
@@ -163,13 +166,14 @@ function BookingWidget({
           value={guests}
           onChange={(e) => setGuests(Number(e.target.value))}
         >
-          {Array.from({ length: property?.maxGuests || 1 }, (_, i) => i + 1).map(
-            (n) => (
-              <option key={n} value={n}>
-                {n} guest{n > 1 ? "s" : ""}
-              </option>
-            ),
-          )}
+          {Array.from(
+            { length: maxGuests - minGuests + 1 },
+            (_, i) => minGuests + i,
+          ).map((n) => (
+            <option key={n} value={n}>
+              {n} guest{n > 1 ? "s" : ""}
+            </option>
+          ))}
         </select>
       </div>
 

@@ -45,6 +45,11 @@ const propertySchema = new mongoose.Schema(
       },
     ],
     amenities: [String],
+    minGuests: {
+      type: Number,
+      default: 1,
+      min: 1,
+    },
     maxGuests: {
       type: Number,
       required: true,

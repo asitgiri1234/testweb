@@ -32,8 +32,11 @@ function PropertyDetailsPage() {
           <h1 className="page-title">{property.title}</h1>
           <p className="property-details__location">{property.location}</p>
           <p className="property-details__meta">
-            {property.maxGuests} guests · {property.bedrooms} bedrooms ·{" "}
-            {property.bathrooms} bathrooms
+            {property.minGuests
+              ? `${property.minGuests}–${property.maxGuests}`
+              : property.maxGuests}{" "}
+            guests · {property.bedrooms} bedrooms · {property.bathrooms}{" "}
+            {property.bathrooms === 1 ? "bathroom" : "bathrooms"}
           </p>
         </header>
 

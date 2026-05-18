@@ -42,7 +42,7 @@ function BookingPage() {
             initialCheckOut={
               prefilled?.checkOut ? new Date(prefilled.checkOut) : undefined
             }
-            initialGuests={prefilled?.guests || 1}
+            initialGuests={prefilled?.guests}
           />
         </div>
 

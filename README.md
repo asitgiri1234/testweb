@@ -68,8 +68,31 @@ This repo uses Vercel **Services** — one project, two services in [`vercel.jso
 | `HOST_EMAIL` | `joeljoseph2003871@gmail.com` |
 | `SITE_NAME` | `Joseph's Retreat` |
 | `CLIENT_URL` | `https://your-project.vercel.app` |
+| `SITE_URL` | `https://your-project.vercel.app` |
+| `MONGODB_URI` | Your MongoDB Atlas connection string |
+| `AIRBNB_ICAL_AMBER_HOUSE` | Amber House Airbnb export `.ics` URL |
 
 5. Deploy. Contact form calls `/api/contact` on the same domain (no separate backend URL needed).
+
+### Airbnb ↔ website calendar sync (Amber House)
+
+| Property | Calendar slug | Airbnb import | Export ICS for Airbnb |
+|----------|---------------|---------------|------------------------|
+| Amber House | `property-1` | Yes | `https://YOUR-DOMAIN/api/calendar/property-1.ics` |
+| Rooftop Serenity | `property-2` | Optional | `https://YOUR-DOMAIN/api/calendar/property-2.ics` |
+
+Seed properties into MongoDB:
+
+```bash
+cd backend
+npm run seed
+```
+
+**Paste into Airbnb (Amber House listing → Availability → Connect calendars → Import calendar):**
+
+`https://YOUR-DOMAIN/api/calendar/property-1.ics`
+
+The website imports Amber House Airbnb blocked dates automatically and blocks them on the booking calendar.
 
 ## Development phases
 

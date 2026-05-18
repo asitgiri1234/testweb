@@ -6,16 +6,20 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "seed": "node src/scripts/seedProperties.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "axios": "^1.16.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "ical-generator": "^10.2.0",
     "mongoose": "^8.9.3",
+    "node-ical": "^0.26.1",
     "resend": "^6.12.3"
   }
 }

@@ -52,6 +52,38 @@
   margin-top: 0.5rem;
 }
 
+.booking-widget__guest-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+.booking-widget__field input {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  font-family: var(--font-body);
+  background: var(--color-oat);
+}
+
+.booking-widget__error {
+  font-size: 0.85rem;
+  color: #7f1d1d;
+  margin-top: 0.5rem;
+}
+
+.booking-widget__success {
+  font-size: 0.85rem;
+  color: var(--color-charcoal-muted);
+  margin-top: 0.5rem;
+  padding: 0.75rem;
+  background: var(--color-accent-soft);
+  border-radius: var(--radius-sm);
+}
+
 .booking-widget__breakdown {
   border-top: 1px solid var(--color-border);
   padding-top: 1.25rem;

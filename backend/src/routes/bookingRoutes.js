@@ -4,8 +4,18 @@ import {
   verifyPayment,
   getBookingById,
 } from "../controllers/bookingController.js";
+import { ensureDb } from "../middleware/ensureDb.js";
 
 const router = express.Router();
+
+router.use(async (req, res, next) => {
+  try {
+    await ensureDb();
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
 
 // POST /api/bookings
 router.post("/", createBooking);

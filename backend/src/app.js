@@ -60,6 +60,10 @@ app.get("/api/health", (req, res) => {
     status: "ok",
     message: "Vacation rental API is running",
     emailConfigured: Boolean(process.env.RESEND_API_KEY?.trim()),
+    calendars: {
+      amberHouseExport: "/api/calendar/property-1.ics",
+      amberHouseAvailability: "/api/calendar/availability/amber-house",
+    },
   });
 });
 

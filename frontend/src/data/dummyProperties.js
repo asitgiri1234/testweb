@@ -8,6 +8,7 @@ export const dummyProperties = [
   {
     id: "1",
     slug: "amber-house",
+    calendarSlug: "property-1",
     title: "Amber House",
     location: "Delhi, India",
     description:
@@ -41,6 +42,7 @@ export const dummyProperties = [
   {
     id: "2",
     slug: "rooftop-serenity",
+    calendarSlug: "property-2",
     title: "Rooftop Serenity",
     location: "Delhi, India",
     description:

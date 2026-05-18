@@ -36,6 +36,13 @@ function BookingPage() {
             property={property}
             compact={false}
             showCalendar={true}
+            initialCheckIn={
+              prefilled?.checkIn ? new Date(prefilled.checkIn) : undefined
+            }
+            initialCheckOut={
+              prefilled?.checkOut ? new Date(prefilled.checkOut) : undefined
+            }
+            initialGuests={prefilled?.guests || 1}
           />
         </div>
 

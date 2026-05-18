@@ -17,6 +17,17 @@ const propertySchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
     },
+    /** ICS export slug for Airbnb sync, e.g. property-1 */
+    calendarSlug: {
+      type: String,
+      unique: true,
+      sparse: true,
+      lowercase: true,
+    },
+    airbnbIcalUrl: {
+      type: String,
+      trim: true,
+    },
     description: {
       type: String,
       required: true,

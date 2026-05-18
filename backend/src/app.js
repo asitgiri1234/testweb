@@ -71,7 +71,9 @@ function healthHandler(req, res) {
     emailConfigured: Boolean(process.env.RESEND_API_KEY?.trim()),
     calendars: {
       amberHouseExport: "/api/calendar/property-1.ics",
+      rooftopSerenityExport: "/api/calendar/property-2.ics",
       amberHouseAvailability: "/api/calendar/availability/amber-house",
+      rooftopSerenityAvailability: "/api/calendar/availability/rooftop-serenity",
     },
   });
 }

@@ -79,7 +79,7 @@ This repo uses Vercel **Services** — one project, two services in [`vercel.jso
 | Property | Calendar slug | Airbnb import | Export ICS for Airbnb |
 |----------|---------------|---------------|------------------------|
 | Amber House | `property-1` | Yes | `https://YOUR-DOMAIN/api/calendar/property-1.ics` |
-| Rooftop Serenity | `property-2` | Optional | `https://YOUR-DOMAIN/api/calendar/property-2.ics` |
+| Rooftop Serenity | `property-2` | Yes | `https://YOUR-DOMAIN/api/calendar/property-2.ics` |
 
 Seed properties into MongoDB:
 

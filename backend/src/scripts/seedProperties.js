@@ -5,7 +5,10 @@
 import "dotenv/config";
 import connectDB from "../config/db.js";
 import Property from "../models/Property.js";
-import { AIRBNB_ICAL_AMBER_HOUSE } from "../config/calendarConfig.js";
+import {
+  AIRBNB_ICAL_AMBER_HOUSE,
+  AIRBNB_ICAL_ROOFTOP_SERENITY,
+} from "../config/calendarConfig.js";
 
 const properties = [
   {
@@ -31,7 +34,7 @@ const properties = [
     title: "Rooftop Serenity",
     slug: "rooftop-serenity",
     calendarSlug: "property-2",
-    airbnbIcalUrl: "",
+    airbnbIcalUrl: AIRBNB_ICAL_ROOFTOP_SERENITY,
     description:
       "Peaceful 4th-floor stay with a movie hall, HD projector, and mini game room.",
     location: { city: "Delhi", country: "India" },

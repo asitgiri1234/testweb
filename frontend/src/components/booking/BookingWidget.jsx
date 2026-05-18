@@ -191,8 +191,8 @@ function BookingWidget({
             />
           )}
           <p className="booking-widget__hint">
-            {property.slug === "amber-house" && hasAirbnbSync
-              ? "Unavailable dates include Amber House Airbnb bookings and website reservations."
+            {hasAirbnbSync
+              ? `Unavailable dates include ${property.title} Airbnb bookings and website reservations.`
               : "Unavailable dates include existing website reservations."}
           </p>
           {calendarError && (

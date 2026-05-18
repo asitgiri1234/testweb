@@ -3,13 +3,13 @@
   margin: 1.25rem 0 0;
   padding: 1rem 1.25rem;
   border-radius: var(--radius-md);
-  background: rgba(184, 115, 74, 0.1);
-  border-left: 3px solid var(--color-amber);
+  background: var(--color-accent-soft);
+  border-left: 2px solid var(--color-charcoal);
 }
 
 .property-description__warnings li {
-  color: var(--color-espresso);
-  font-size: 0.95rem;
+  color: var(--color-charcoal-muted);
+  font-size: 0.92rem;
   line-height: 1.6;
   margin-bottom: 0.35rem;
 }

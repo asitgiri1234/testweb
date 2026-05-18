@@ -13,7 +13,7 @@
 
 .property-card:hover {
   box-shadow: var(--shadow-medium);
-  transform: translateY(-4px);
+  transform: translateY(-3px);
 }
 
 .property-card__image-link {
@@ -27,7 +27,7 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(44, 36, 25, 0.35), transparent 50%);
+  background: linear-gradient(to top, rgba(28, 25, 23, 0.28), transparent 55%);
   opacity: 0;
   transition: opacity var(--transition);
 }
@@ -44,19 +44,19 @@
 }
 
 .property-card:hover .property-card__image {
-  transform: scale(1.05);
+  transform: scale(1.04);
 }
 
 .property-card__placeholder {
   height: 100%;
   min-height: 220px;
-  background: var(--color-parchment);
+  background: var(--color-cream-deep);
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: var(--font-ui);
-  font-size: 0.8rem;
-  letter-spacing: 0.1em;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--color-muted-light);
 }
@@ -72,49 +72,48 @@
 .property-card__label {
   font-family: var(--font-ui);
   font-size: 0.65rem;
-  font-weight: 600;
-  letter-spacing: 0.18em;
+  font-weight: 500;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--color-amber);
+  color: var(--color-stone-muted);
 }
 
 .property-card__title a {
   font-family: var(--font-display);
-  font-size: 1.65rem;
-  font-weight: 600;
-  color: var(--color-espresso);
+  font-size: 1.6rem;
+  font-weight: 500;
+  color: var(--color-charcoal);
   text-decoration: none;
   transition: color var(--transition);
 }
 
 .property-card__title a:hover {
-  color: var(--color-amber);
+  color: var(--color-charcoal-soft);
 }
 
 .property-card__location {
-  font-size: 0.95rem;
-  font-style: italic;
+  font-size: 0.92rem;
   color: var(--color-muted);
 }
 
 .property-card__meta {
   font-family: var(--font-ui);
-  font-size: 0.8rem;
-  letter-spacing: 0.04em;
+  font-size: 0.78rem;
+  letter-spacing: 0.03em;
   color: var(--color-muted-light);
   margin: 0.25rem 0 0.5rem;
 }
 
 .property-card__price {
   font-family: var(--font-display);
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   margin-top: 0.25rem;
-  color: var(--color-espresso);
+  color: var(--color-charcoal);
 }
 
 .property-card__price span {
   font-family: var(--font-body);
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 400;
   color: var(--color-muted);
 }

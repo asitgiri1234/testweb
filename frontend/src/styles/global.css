@@ -1,45 +1,60 @@
-/* Joseph's Retreat — warm, premium design system */
+/* Joseph's Retreat — warm café minimal, monotone luxury */
 
 :root {
-  /* Warm palette */
-  --color-cream: #faf6f0;
-  --color-cream-deep: #f3ebe0;
-  --color-parchment: #ebe3d6;
-  --color-espresso: #2c2419;
-  --color-espresso-soft: #4a4034;
-  --color-muted: #7a6f63;
-  --color-muted-light: #9c9084;
+  /* Warm monotone palette */
+  --color-oat: #f8f6f3;
+  --color-oat-deep: #f0ece6;
+  --color-linen: #e7e4de;
+  --color-stone: #a8a29e;
+  --color-stone-muted: #78716c;
+  --color-charcoal: #1c1917;
+  --color-charcoal-soft: #44403c;
+  --color-charcoal-muted: #57534e;
 
-  /* Accents */
-  --color-amber: #b8734a;
-  --color-amber-dark: #9a5f3c;
-  --color-amber-soft: #f5ebe3;
-  --color-sage: #6b7d65;
-  --color-sage-soft: #eef2eb;
+  /* Semantic aliases (used across components) */
+  --color-cream: #faf9f7;
+  --color-cream-deep: var(--color-oat-deep);
+  --color-parchment: var(--color-linen);
+  --color-espresso: var(--color-charcoal);
+  --color-espresso-soft: var(--color-charcoal-soft);
+  --color-muted: var(--color-stone-muted);
+  --color-muted-light: var(--color-stone);
 
-  /* Semantic */
-  --color-primary: var(--color-amber);
+  --color-accent: var(--color-charcoal);
+  --color-accent-soft: #f5f4f2;
+  --color-amber: var(--color-charcoal);
+  --color-amber-dark: #0c0a09;
+  --color-amber-soft: var(--color-accent-soft);
+  --color-sage: var(--color-charcoal-muted);
+  --color-sage-soft: var(--color-accent-soft);
+
+  --color-primary: var(--color-charcoal);
   --color-primary-dark: var(--color-amber-dark);
-  --color-text: var(--color-espresso);
-  --color-border: rgba(44, 36, 25, 0.1);
-  --color-bg: var(--color-cream);
-  --color-white: #fffcf8;
-  --color-surface: var(--color-white);
+  --color-text: var(--color-charcoal);
+  --color-border: rgba(28, 25, 23, 0.09);
+  --color-bg: var(--color-oat);
+  --color-white: #ffffff;
+  --color-surface: #ffffff;
+
+  --color-overlay: rgba(28, 25, 23, 0.55);
+  --color-hero-highlight: rgba(250, 249, 247, 0.92);
+  --color-hero-muted: rgba(250, 249, 247, 0.72);
 
   /* Typography */
   --font-display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
-  --font-body: "Lora", Georgia, serif;
-  --font-ui: "DM Sans", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, sans-serif;
+  --font-ui: "Inter", system-ui, -apple-system, sans-serif;
 
   /* Layout */
-  --radius-sm: 8px;
-  --radius: 14px;
-  --radius-lg: 22px;
-  --shadow-soft: 0 4px 24px rgba(44, 36, 25, 0.06);
-  --shadow-medium: 0 12px 40px rgba(44, 36, 25, 0.1);
-  --shadow-warm: 0 20px 60px rgba(184, 115, 74, 0.12);
-  --max-width: 1140px;
-  --transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  --radius-sm: 6px;
+  --radius: 12px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --shadow-soft: 0 2px 24px rgba(28, 25, 23, 0.04);
+  --shadow-medium: 0 12px 40px rgba(28, 25, 23, 0.07);
+  --shadow-warm: 0 20px 56px rgba(28, 25, 23, 0.09);
+  --max-width: 1120px;
+  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 *,
@@ -56,11 +71,13 @@ html {
 
 body {
   font-family: var(--font-body);
-  font-size: 1.05rem;
+  font-size: 1rem;
+  font-weight: 400;
   color: var(--color-text);
-  line-height: 1.75;
-  background: var(--color-cream);
+  line-height: 1.7;
+  background: var(--color-bg);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 h1,
@@ -68,20 +85,20 @@ h2,
 h3,
 h4 {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: -0.02em;
-  line-height: 1.2;
-  color: var(--color-espresso);
+  line-height: 1.15;
+  color: var(--color-charcoal);
 }
 
 a {
-  color: var(--color-amber);
+  color: var(--color-charcoal);
   text-decoration: none;
-  transition: color var(--transition);
+  transition: color var(--transition), opacity var(--transition);
 }
 
 a:hover {
-  color: var(--color-amber-dark);
+  color: var(--color-charcoal-soft);
 }
 
 img {
@@ -108,37 +125,37 @@ img {
 
 /* Page sections */
 .page {
-  padding: 4rem 0 5rem;
+  padding: 4.5rem 0 5rem;
 }
 
 .page-header {
   text-align: center;
-  max-width: 36rem;
+  max-width: 34rem;
   margin: 0 auto 3rem;
 }
 
 .page-eyebrow {
   font-family: var(--font-ui);
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.22em;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--color-amber);
+  color: var(--color-stone-muted);
   margin-bottom: 0.75rem;
   display: block;
 }
 
 .page-title {
-  font-size: clamp(2rem, 4.5vw, 2.85rem);
+  font-size: clamp(2rem, 4.5vw, 2.75rem);
   margin-bottom: 0.75rem;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .page-subtitle {
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   color: var(--color-muted);
-  line-height: 1.7;
-  font-style: italic;
+  line-height: 1.65;
+  font-weight: 400;
 }
 
 .section--alt {
@@ -146,7 +163,7 @@ img {
 }
 
 .section--warm {
-  background: linear-gradient(180deg, var(--color-cream-deep) 0%, var(--color-cream) 100%);
+  background: linear-gradient(180deg, var(--color-cream-deep) 0%, var(--color-bg) 100%);
 }
 
 /* Buttons */
@@ -155,48 +172,49 @@ img {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.85rem 1.75rem;
+  padding: 0.9rem 1.85rem;
   font-family: var(--font-ui);
-  font-size: 0.8rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  background: var(--color-amber);
+  background: var(--color-charcoal);
   color: var(--color-white);
-  border: none;
+  border: 1px solid var(--color-charcoal);
   border-radius: var(--radius-sm);
   cursor: pointer;
   text-decoration: none;
   transition:
     background var(--transition),
-    transform var(--transition),
-    box-shadow var(--transition);
-  box-shadow: 0 4px 16px rgba(184, 115, 74, 0.25);
+    color var(--transition),
+    border-color var(--transition),
+    transform var(--transition);
+  box-shadow: none;
 }
 
 .btn:hover {
-  background: var(--color-amber-dark);
+  background: var(--color-charcoal-soft);
+  border-color: var(--color-charcoal-soft);
   color: var(--color-white);
   text-decoration: none;
   transform: translateY(-1px);
-  box-shadow: 0 8px 24px rgba(184, 115, 74, 0.3);
 }
 
 .btn-outline {
   background: transparent;
-  color: var(--color-espresso);
+  color: var(--color-charcoal);
   border: 1px solid var(--color-border);
   box-shadow: none;
 }
 
 .btn-outline:hover {
-  background: var(--color-espresso);
-  color: var(--color-cream);
-  border-color: var(--color-espresso);
+  background: var(--color-charcoal);
+  color: var(--color-white);
+  border-color: var(--color-charcoal);
 }
 
 .btn:disabled {
-  opacity: 0.55;
+  opacity: 0.45;
   cursor: not-allowed;
   transform: none;
 }
@@ -208,8 +226,8 @@ img {
 }
 
 .prose {
-  color: var(--color-espresso-soft);
-  line-height: 1.85;
+  color: var(--color-charcoal-muted);
+  line-height: 1.8;
 }
 
 .prose p {
@@ -217,7 +235,7 @@ img {
 }
 
 .prose h2 {
-  font-size: 1.5rem;
+  font-size: 1.45rem;
   margin: 2.5rem 0 1rem;
 }
 
@@ -228,7 +246,7 @@ img {
 
 .prose ul li {
   position: relative;
-  padding-left: 1.5rem;
+  padding-left: 1.25rem;
   margin-bottom: 0.65rem;
   color: var(--color-muted);
 }
@@ -237,5 +255,5 @@ img {
   content: "—";
   position: absolute;
   left: 0;
-  color: var(--color-amber);
+  color: var(--color-stone);
 }

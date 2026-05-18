@@ -15,8 +15,8 @@ function Navbar() {
             src={logoImage}
             alt={siteConfig.name}
             className="navbar__logo-image"
-            width={220}
-            height={60}
+            width={160}
+            height={72}
           />
         </NavLink>
 

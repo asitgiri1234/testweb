@@ -26,9 +26,9 @@
 
 .navbar__logo-image {
   display: block;
-  height: 58px;
+  height: 64px;
   width: auto;
-  max-width: min(220px, 52vw);
+  max-width: min(168px, 46vw);
   object-fit: contain;
   object-position: left center;
   transition:
@@ -92,8 +92,8 @@
 
 @media (max-width: 768px) {
   .navbar__logo-image {
-    height: 48px;
-    max-width: min(180px, 48vw);
+    height: 54px;
+    max-width: min(148px, 44vw);
   }
 
   .navbar__inner {
@@ -112,8 +112,8 @@
   }
 
   .navbar__logo-image {
-    height: 40px;
-    max-width: min(150px, 44vw);
+    height: 46px;
+    max-width: min(128px, 42vw);
   }
 }
 

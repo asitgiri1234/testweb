@@ -9,7 +9,18 @@ export const notFound = (req, res) => {
   });
 };
 
+function isCalendarIcsRequest(req) {
+  return /\.ics$/i.test(req.path || req.originalUrl || "");
+}
+
 export const errorHandler = (err, req, res, next) => {
+  if (isCalendarIcsRequest(req)) {
+    const fallback =
+      "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Josephs Retreat//Booking Calendar//EN\r\nCALSCALE:GREGORIAN\r\nMETHOD:PUBLISH\r\nEND:VCALENDAR\r\n";
+    res.setHeader("Content-Type", "text/calendar; charset=utf-8");
+    return res.status(200).send(fallback);
+  }
+
   if (err.message === "Not allowed by CORS") {
     console.warn(`CORS error for ${req.headers.origin}:`, err.message);
     return res.status(403).json({

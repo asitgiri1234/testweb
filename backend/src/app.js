@@ -1,5 +1,9 @@
 /**
  * Express application setup.
+ *
+ * On Vercel, the backend service uses routePrefix "/api", so Express receives
+ * paths WITHOUT the /api prefix (e.g. /calendar/property-1.ics).
+ * Locally, routes are mounted at /api for the Vite proxy.
  */
 import express from "express";
 import cors from "cors";
@@ -7,6 +11,8 @@ import apiRoutes from "./routes/index.js";
 import { notFound, errorHandler } from "./middleware/errorHandler.js";
 
 const app = express();
+const IS_VERCEL = Boolean(process.env.VERCEL);
+const API_MOUNT = IS_VERCEL ? "/" : "/api";
 
 function buildAllowedOrigins() {
   const origins = new Set([
@@ -16,6 +22,9 @@ function buildAllowedOrigins() {
 
   if (process.env.CLIENT_URL) {
     origins.add(process.env.CLIENT_URL.replace(/\/$/, ""));
+  }
+  if (process.env.SITE_URL) {
+    origins.add(process.env.SITE_URL.replace(/\/$/, ""));
   }
   if (process.env.VERCEL_URL) {
     origins.add(`https://${process.env.VERCEL_URL.replace(/\/$/, "")}`);
@@ -55,7 +64,7 @@ app.use(
   })
 );
 
-app.get("/api/health", (req, res) => {
+function healthHandler(req, res) {
   res.json({
     status: "ok",
     message: "Vacation rental API is running",
@@ -65,9 +74,15 @@ app.get("/api/health", (req, res) => {
       amberHouseAvailability: "/api/calendar/availability/amber-house",
     },
   });
-});
+}
 
-app.use("/api", apiRoutes);
+if (IS_VERCEL) {
+  app.get("/health", healthHandler);
+} else {
+  app.get("/api/health", healthHandler);
+}
+
+app.use(API_MOUNT, apiRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

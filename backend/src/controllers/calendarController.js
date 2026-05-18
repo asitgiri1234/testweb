@@ -12,10 +12,8 @@ export const exportCalendarIcs = async (req, res, next) => {
 
     const config = getCalendarConfig(calendarSlug);
     if (!config) {
-      return res.status(404).json({
-        success: false,
-        message: `Calendar not found: ${calendarSlug}`,
-      });
+      res.setHeader("Content-Type", "text/plain; charset=utf-8");
+      return res.status(404).send("Calendar not found");
     }
 
     const icsBody = await generatePropertyIcs(calendarSlug);

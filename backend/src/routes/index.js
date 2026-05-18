@@ -11,7 +11,7 @@ import { ensureDb } from "../middleware/ensureDb.js";
 const router = express.Router();
 
 router.use(async (req, res, next) => {
-  if (req.path.startsWith("/contact")) {
+  if (req.path.startsWith("/contact") || req.path.startsWith("/calendar")) {
     return next();
   }
   try {

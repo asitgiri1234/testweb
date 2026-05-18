@@ -1,10 +1,25 @@
 /**
- * Generates .ics export for Airbnb to import (website bookings only).
+ * Generates .ics export for Airbnb to import (website bookings).
+ * Works without MongoDB — returns a valid empty calendar if DB is unavailable.
  */
 import ical from "ical-generator";
 import { getCalendarConfig, getSiteBaseUrl } from "../config/calendarConfig.js";
 import { getWebsiteBookingRanges } from "./availabilityService.js";
 import Property from "../models/Property.js";
+import mongoose from "mongoose";
+
+function buildEmptyCalendar(config, propertySlug) {
+  return ical({
+    name: `${config.title} - Joseph's Retreat`,
+    description: `Direct bookings from Joseph's Retreat for ${config.title}`,
+    timezone: process.env.CALENDAR_TIMEZONE || "Asia/Kolkata",
+    url: `${getSiteBaseUrl()}/properties/${propertySlug}`,
+    prodId: {
+      company: "Josephs Retreat",
+      product: "Booking Calendar",
+    },
+  }).toString();
+}
 
 export async function generatePropertyIcs(calendarSlug) {
   const slug = calendarSlug.replace(/\.ics$/i, "");
@@ -16,21 +31,26 @@ export async function generatePropertyIcs(calendarSlug) {
     throw error;
   }
 
-  const property =
-    (await Property.findOne({ slug: config.propertySlug })) ||
-    ({ title: config.title, slug: config.propertySlug });
+  let websiteRanges = [];
 
-  const websiteRanges = property._id
-    ? await getWebsiteBookingRanges(property._id)
-    : [];
+  if (mongoose.connection.readyState === 1) {
+    try {
+      const property = await Property.findOne({ slug: config.propertySlug });
+      if (property?._id) {
+        websiteRanges = await getWebsiteBookingRanges(property._id);
+      }
+    } catch (err) {
+      console.warn("ICS export: could not load bookings from DB", err.message);
+    }
+  }
 
   const calendar = ical({
-    name: `${property.title} — Joseph's Retreat`,
-    description: `Direct bookings from Joseph's Retreat for ${property.title}`,
+    name: `${config.title} - Joseph's Retreat`,
+    description: `Direct bookings from Joseph's Retreat for ${config.title}`,
     timezone: process.env.CALENDAR_TIMEZONE || "Asia/Kolkata",
-    url: `${getSiteBaseUrl()}/properties/${property.slug}`,
+    url: `${getSiteBaseUrl()}/properties/${config.propertySlug}`,
     prodId: {
-      company: "Joseph's Retreat",
+      company: "Josephs Retreat",
       product: "Booking Calendar",
     },
   });
@@ -39,12 +59,18 @@ export async function generatePropertyIcs(calendarSlug) {
     calendar.createEvent({
       start: range.start,
       end: range.end,
-      summary: range.summary || "Booked — Website",
-      description: "Reserved via Joseph's Retreat website. Do not accept overlapping Airbnb bookings.",
+      summary: "Booked - Website",
+      description:
+        "Reserved via Joseph's Retreat website. Do not accept overlapping Airbnb bookings.",
       busystatus: "BUSY",
       transparency: "OPAQUE",
     });
   }
 
-  return calendar.toString();
+  const body = calendar.toString();
+  if (body && body.includes("BEGIN:VCALENDAR")) {
+    return body;
+  }
+
+  return buildEmptyCalendar(config, config.propertySlug);
 }

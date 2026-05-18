@@ -2,6 +2,7 @@
  * Property listings for Joseph's Retreat
  */
 import { amberHouseImages } from "./amberHouseImages.js";
+import { rooftopSerenityImages } from "./rooftopSerenityImages.js";
 
 export const dummyProperties = [
   {
@@ -27,20 +28,7 @@ export const dummyProperties = [
     location: "Delhi, India",
     description:
       "Elevated above the city's gentle hum, Rooftop Serenity offers open skies and unhurried calm. Sunlit interiors flow toward a private rooftop — a sanctuary for morning coffee, evening wine, and the rare pleasure of doing very little, beautifully.",
-    images: [
-      {
-        url: "https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800",
-        caption: "Living room",
-      },
-      {
-        url: "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=800",
-        caption: "Rooftop lounge",
-      },
-      {
-        url: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800",
-        caption: "Exterior",
-      },
-    ],
+    images: rooftopSerenityImages,
     amenities: ["WiFi", "Rooftop access", "Full kitchen", "Washer", "Balcony", "TV"],
     maxGuests: 5,
     bedrooms: 2,

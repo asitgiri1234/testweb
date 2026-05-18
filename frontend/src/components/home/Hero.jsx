@@ -3,12 +3,17 @@
  */
 import { Link } from "react-router-dom";
 import { siteConfig } from "../../config/siteConfig.js";
+import heroHomeImage from "../../assets/images/hero-home.png";
 import "./Hero.css";
 
 function Hero() {
   return (
     <section className="hero">
-      <div className="hero__bg" aria-hidden="true" />
+      <div
+        className="hero__bg"
+        aria-hidden="true"
+        style={{ "--hero-bg-image": `url(${heroHomeImage})` }}
+      />
       <div className="container hero__content">
         <p className="hero__eyebrow">Delhi · Private retreats</p>
         <h1 className="hero__title">

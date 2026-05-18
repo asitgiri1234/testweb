@@ -50,6 +50,8 @@
   transform: translateY(-50%);
   width: 2.75rem;
   height: 2.75rem;
+  min-width: 44px;
+  min-height: 44px;
   border: 1px solid rgba(255, 255, 255, 0.25);
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.12);
@@ -62,7 +64,9 @@
   align-items: center;
   justify-content: center;
   transition: background 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
-  z-index: 1;
+  z-index: 3;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .hero__nav:hover {
@@ -86,23 +90,27 @@
   transform: translateX(-50%);
   display: flex;
   gap: 0.5rem;
-  z-index: 1;
+  z-index: 3;
 }
 
 .hero__dot {
-  width: 0.5rem;
-  height: 0.5rem;
-  padding: 0;
+  width: 8px;
+  height: 8px;
+  padding: 18px;
   border: none;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.4);
+  background-color: rgba(255, 255, 255, 0.4);
+  background-clip: content-box;
+  box-sizing: content-box;
   cursor: pointer;
-  transition: background 0.25s ease, transform 0.25s ease;
+  transition: background-color 0.25s ease, transform 0.25s ease;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .hero__dot--active {
-  background: var(--color-cream);
-  transform: scale(1.2);
+  background-color: var(--color-cream);
+  transform: scale(1.15);
 }
 
 .hero__content {
@@ -110,6 +118,12 @@
   z-index: 2;
   max-width: 38rem;
   color: var(--color-cream);
+  pointer-events: none;
+}
+
+.hero__content a,
+.hero__content button {
+  pointer-events: auto;
 }
 
 .hero__eyebrow {

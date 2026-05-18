@@ -15,13 +15,19 @@ const sharedLocation = {
   mapsUrl: getGoogleMapsUrl(),
 };
 
+export const LISTING_RATING = {
+  stars: 5,
+  reviewCount: 100,
+  locationLabel: "Rohini Sector 15, New Delhi",
+};
+
 export const dummyProperties = [
   {
     id: "1",
     slug: "amber-house",
     calendarSlug: "property-1",
     title: "Amber House",
-    location: PROPERTY_AREA_LABEL,
+    location: LISTING_RATING.locationLabel,
     ...sharedLocation,
     description:
       "Your cozy city escape — warm interiors, fully equipped kitchen, and modern amenities minutes from the metro.",
@@ -44,11 +50,13 @@ export const dummyProperties = [
     ],
     images: amberHouseImages,
     amenities: ["WiFi", "Air conditioning", "Full kitchen", "Self check-in", "Workspace", "Smart TV", "Projector"],
-    minGuests: 3,
+    minGuests: 1,
     maxGuests: 5,
     bedrooms: 2,
     bathrooms: 1,
-    pricePerNight: 2399,
+    pricePerNight: 2299,
+    rating: LISTING_RATING.stars,
+    reviewCount: LISTING_RATING.reviewCount,
     cleaningFee: 600,
     rules: ["No smoking", "No parties", "Quiet hours from 11pm"],
   },
@@ -57,7 +65,7 @@ export const dummyProperties = [
     slug: "rooftop-serenity",
     calendarSlug: "property-2",
     title: "Rooftop Serenity",
-    location: PROPERTY_AREA_LABEL,
+    location: LISTING_RATING.locationLabel,
     ...sharedLocation,
     description:
       "Peaceful 4th-floor stay with a movie hall, HD projector, speaker system, and a mini game room for couples.",
@@ -83,11 +91,13 @@ export const dummyProperties = [
     ],
     images: rooftopSerenityImages,
     amenities: ["WiFi", "Full kitchen", "HD projector", "Speaker system", "Movie hall", "Game room", "TV"],
-    minGuests: 3,
-    maxGuests: 5,
+    minGuests: 1,
+    maxGuests: 3,
     bedrooms: 2,
     bathrooms: 1,
     pricePerNight: 1999,
+    rating: LISTING_RATING.stars,
+    reviewCount: LISTING_RATING.reviewCount,
     cleaningFee: 800,
     rules: [
       "Quiet hours: 11pm–7am",

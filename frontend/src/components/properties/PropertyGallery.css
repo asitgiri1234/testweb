@@ -3,7 +3,8 @@
   border-radius: var(--radius-lg);
   overflow: hidden;
   background: var(--color-bg);
-  touch-action: pan-y;
+  touch-action: pan-y pinch-zoom;
+  user-select: none;
 }
 
 .gallery__main-image {
@@ -29,8 +30,10 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  min-width: 44px;
+  min-height: 44px;
   border: none;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.92);
@@ -44,7 +47,9 @@
   box-shadow: var(--shadow-soft);
   border: 1px solid var(--color-border);
   transition: background 0.2s ease, transform 0.2s ease;
-  z-index: 2;
+  z-index: 3;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .gallery__nav:hover {
@@ -87,6 +92,8 @@
 .gallery__thumb {
   flex: 0 0 80px;
   height: 56px;
+  min-width: 44px;
+  min-height: 44px;
   border: 2px solid transparent;
   border-radius: 8px;
   overflow: hidden;
@@ -94,6 +101,8 @@
   cursor: pointer;
   background: none;
   scroll-snap-align: start;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .gallery__thumb img {

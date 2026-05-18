@@ -1,12 +1,14 @@
 /**
  * Image gallery for property detail page — slide through photos with arrows, swipe, or thumbnails.
  */
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import "./PropertyGallery.css";
+
+const SWIPE_THRESHOLD_PX = 48;
 
 function PropertyGallery({ images = [] }) {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [touchStartX, setTouchStartX] = useState(null);
+  const touchStartX = useRef(null);
 
   const total = images.length;
   const hasMultiple = total > 1;
@@ -42,17 +44,17 @@ function PropertyGallery({ images = [] }) {
   const active = images[activeIndex];
 
   const handleTouchStart = (event) => {
-    setTouchStartX(event.touches[0].clientX);
+    touchStartX.current = event.touches[0].clientX;
   };
 
   const handleTouchEnd = (event) => {
-    if (touchStartX === null) return;
-    const delta = event.changedTouches[0].clientX - touchStartX;
-    if (Math.abs(delta) > 48) {
+    if (touchStartX.current === null) return;
+    const delta = event.changedTouches[0].clientX - touchStartX.current;
+    if (Math.abs(delta) > SWIPE_THRESHOLD_PX) {
       if (delta < 0) goNext();
       else goPrev();
     }
-    setTouchStartX(null);
+    touchStartX.current = null;
   };
 
   return (
@@ -67,6 +69,7 @@ function PropertyGallery({ images = [] }) {
           alt={active.caption || "Property photo"}
           className="gallery__main-image"
           key={active.url}
+          draggable={false}
         />
 
         {active.caption && <p className="gallery__caption">{active.caption}</p>}
@@ -76,7 +79,10 @@ function PropertyGallery({ images = [] }) {
             <button
               type="button"
               className="gallery__nav gallery__nav--prev"
-              onClick={goPrev}
+              onClick={(event) => {
+                event.stopPropagation();
+                goPrev();
+              }}
               aria-label="Previous photo"
             >
               ‹
@@ -84,7 +90,10 @@ function PropertyGallery({ images = [] }) {
             <button
               type="button"
               className="gallery__nav gallery__nav--next"
-              onClick={goNext}
+              onClick={(event) => {
+                event.stopPropagation();
+                goNext();
+              }}
               aria-label="Next photo"
             >
               ›
@@ -108,7 +117,7 @@ function PropertyGallery({ images = [] }) {
               aria-label={`Show image ${index + 1}: ${img.caption || "Property photo"}`}
               aria-current={index === activeIndex}
             >
-              <img src={img.url} alt="" />
+              <img src={img.url} alt="" draggable={false} />
             </button>
           ))}
         </div>

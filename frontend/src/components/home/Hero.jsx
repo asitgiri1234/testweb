@@ -1,21 +1,24 @@
 /**
  * Homepage hero — auto-rotating background photos every 5 seconds.
  */
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { siteConfig } from "../../config/siteConfig.js";
-import heroSlide1 from "../../assets/images/hero-slide-1.png";
 import heroSlide2 from "../../assets/images/hero-slide-2.png";
 import heroSlide3 from "../../assets/images/hero-slide-3.png";
+import heroSlide4 from "../../assets/images/hero-slide-4.png";
+import heroSlide5 from "../../assets/images/hero-slide-5.png";
 import "./Hero.css";
 
 const HERO_INTERVAL_MS = 5000;
+const SWIPE_THRESHOLD_PX = 48;
 
-const heroImages = [heroSlide1, heroSlide2, heroSlide3];
+const heroImages = [heroSlide2, heroSlide3, heroSlide4, heroSlide5];
 
 function Hero() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const touchStartX = useRef(null);
   const total = heroImages.length;
 
   const goTo = useCallback(
@@ -25,8 +28,13 @@ function Hero() {
     [total],
   );
 
-  const goPrev = () => goTo(activeIndex - 1);
-  const goNext = () => goTo(activeIndex + 1);
+  const goPrev = useCallback(() => {
+    setActiveIndex((current) => (current - 1 + total) % total);
+  }, [total]);
+
+  const goNext = useCallback(() => {
+    setActiveIndex((current) => (current + 1) % total);
+  }, [total]);
 
   useEffect(() => {
     if (isPaused || total <= 1) return undefined;
@@ -38,6 +46,20 @@ function Hero() {
     return () => clearInterval(timer);
   }, [isPaused, total]);
 
+  const handleTouchStart = (event) => {
+    touchStartX.current = event.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (event) => {
+    if (touchStartX.current === null) return;
+    const delta = event.changedTouches[0].clientX - touchStartX.current;
+    if (Math.abs(delta) > SWIPE_THRESHOLD_PX) {
+      if (delta < 0) goNext();
+      else goPrev();
+    }
+    touchStartX.current = null;
+  };
+
   return (
     <section className="hero">
       <div
@@ -45,6 +67,8 @@ function Hero() {
         aria-hidden="true"
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
       >
         {heroImages.map((image, index) => (
           <div
@@ -58,7 +82,10 @@ function Hero() {
         <button
           type="button"
           className="hero__nav hero__nav--prev"
-          onClick={goPrev}
+          onClick={(event) => {
+            event.stopPropagation();
+            goPrev();
+          }}
           aria-label="Previous background photo"
         >
           ‹
@@ -66,7 +93,10 @@ function Hero() {
         <button
           type="button"
           className="hero__nav hero__nav--next"
-          onClick={goNext}
+          onClick={(event) => {
+            event.stopPropagation();
+            goNext();
+          }}
           aria-label="Next background photo"
         >
           ›
@@ -79,7 +109,10 @@ function Hero() {
               type="button"
               role="tab"
               className={`hero__dot ${index === activeIndex ? "hero__dot--active" : ""}`}
-              onClick={() => goTo(index)}
+              onClick={(event) => {
+                event.stopPropagation();
+                goTo(index);
+              }}
               aria-label={`Show photo ${index + 1}`}
               aria-selected={index === activeIndex}
             />

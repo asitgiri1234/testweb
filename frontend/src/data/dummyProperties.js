@@ -1,6 +1,8 @@
 /**
  * Property listings for Joseph's Retreat
  */
+import { amberHouseImages } from "./amberHouseImages.js";
+
 export const dummyProperties = [
   {
     id: "1",
@@ -9,20 +11,7 @@ export const dummyProperties = [
     location: "Delhi, India",
     description:
       "Bathed in golden afternoon light, Amber House is an embrace of warmth — linen-draped beds, a kitchen awaiting quiet breakfasts, and corners designed for long conversations. Ideal for couples and small families who cherish intimacy without sacrificing comfort.",
-    images: [
-      {
-        url: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800",
-        caption: "Living area",
-      },
-      {
-        url: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800",
-        caption: "Bedroom",
-      },
-      {
-        url: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800",
-        caption: "Kitchen",
-      },
-    ],
+    images: amberHouseImages,
     amenities: ["WiFi", "Air conditioning", "Full kitchen", "Self check-in", "Workspace"],
     maxGuests: 4,
     bedrooms: 2,

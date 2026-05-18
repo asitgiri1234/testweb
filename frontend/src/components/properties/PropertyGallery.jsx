@@ -1,33 +1,102 @@
 /**
- * Image gallery for property detail page.
- * Accepts an array of { url, caption } — swap URLs when you have real photos.
+ * Image gallery for property detail page — slide through photos with arrows, swipe, or thumbnails.
  */
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import "./PropertyGallery.css";
 
 function PropertyGallery({ images = [] }) {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [touchStartX, setTouchStartX] = useState(null);
 
-  if (!images.length) {
+  const total = images.length;
+  const hasMultiple = total > 1;
+
+  const goTo = useCallback(
+    (index) => {
+      if (!total) return;
+      const next = ((index % total) + total) % total;
+      setActiveIndex(next);
+    },
+    [total],
+  );
+
+  const goPrev = useCallback(() => goTo(activeIndex - 1), [activeIndex, goTo]);
+  const goNext = useCallback(() => goTo(activeIndex + 1), [activeIndex, goTo]);
+
+  useEffect(() => {
+    if (!hasMultiple) return undefined;
+
+    const onKeyDown = (event) => {
+      if (event.key === "ArrowLeft") goPrev();
+      if (event.key === "ArrowRight") goNext();
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [hasMultiple, goPrev, goNext]);
+
+  if (!total) {
     return <div className="gallery gallery--empty">No images available yet</div>;
   }
 
   const active = images[activeIndex];
 
+  const handleTouchStart = (event) => {
+    setTouchStartX(event.touches[0].clientX);
+  };
+
+  const handleTouchEnd = (event) => {
+    if (touchStartX === null) return;
+    const delta = event.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(delta) > 48) {
+      if (delta < 0) goNext();
+      else goPrev();
+    }
+    setTouchStartX(null);
+  };
+
   return (
     <section className="gallery" aria-label="Property photos">
-      <div className="gallery__main">
+      <div
+        className="gallery__main"
+        onTouchStart={hasMultiple ? handleTouchStart : undefined}
+        onTouchEnd={hasMultiple ? handleTouchEnd : undefined}
+      >
         <img
           src={active.url}
           alt={active.caption || "Property photo"}
           className="gallery__main-image"
+          key={active.url}
         />
-        {active.caption && (
-          <p className="gallery__caption">{active.caption}</p>
+
+        {active.caption && <p className="gallery__caption">{active.caption}</p>}
+
+        {hasMultiple && (
+          <>
+            <button
+              type="button"
+              className="gallery__nav gallery__nav--prev"
+              onClick={goPrev}
+              aria-label="Previous photo"
+            >
+              ‹
+            </button>
+            <button
+              type="button"
+              className="gallery__nav gallery__nav--next"
+              onClick={goNext}
+              aria-label="Next photo"
+            >
+              ›
+            </button>
+            <p className="gallery__counter" aria-live="polite">
+              {activeIndex + 1} / {total}
+            </p>
+          </>
         )}
       </div>
 
-      {images.length > 1 && (
+      {hasMultiple && (
         <div className="gallery__thumbs" role="list">
           {images.map((img, index) => (
             <button
@@ -36,10 +105,10 @@ function PropertyGallery({ images = [] }) {
               role="listitem"
               className={`gallery__thumb ${index === activeIndex ? "gallery__thumb--active" : ""}`}
               onClick={() => setActiveIndex(index)}
-              aria-label={`Show image ${index + 1}`}
+              aria-label={`Show image ${index + 1}: ${img.caption || "Property photo"}`}
               aria-current={index === activeIndex}
             >
-              <img src={img.url} alt={img.caption || ""} />
+              <img src={img.url} alt="" />
             </button>
           ))}
         </div>

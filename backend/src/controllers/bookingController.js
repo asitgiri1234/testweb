@@ -9,7 +9,7 @@ export const createBooking = async (req, res, next) => {
 
     return res.status(201).json({
       success: true,
-      message: "Booking created. Proceed to payment when enabled.",
+      message: "Booking created. Complete payment to confirm your reservation.",
       booking: {
         id: booking._id,
         property: booking.property,
@@ -36,14 +36,6 @@ export const createBooking = async (req, res, next) => {
     }
     return next(err);
   }
-};
-
-export const verifyPayment = async (req, res) => {
-  res.status(501).json({
-    success: false,
-    message:
-      "Payment verification not implemented yet — Razorpay integration coming in Phase 4",
-  });
 };
 
 export const getBookingById = async (req, res, next) => {

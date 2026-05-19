@@ -70,6 +70,9 @@ This repo uses Vercel **Services** — one project, two services in [`vercel.jso
 | `CLIENT_URL` | `https://your-project.vercel.app` |
 | `SITE_URL` | `https://your-project.vercel.app` |
 | `MONGODB_URI` | Your MongoDB Atlas connection string |
+| `RAZORPAY_KEY_ID` | Razorpay test/live key ID |
+| `RAZORPAY_KEY_SECRET` | Razorpay key secret (backend only) |
+| `VITE_RAZORPAY_KEY_ID` | Same key ID for the frontend service |
 | `AIRBNB_ICAL_AMBER_HOUSE` | Amber House Airbnb export `.ics` URL |
 
 5. Deploy. Contact form calls `/api/contact` on the same domain (no separate backend URL needed).
@@ -101,13 +104,25 @@ The website imports Amber House Airbnb blocked dates automatically and blocks th
 | 1 | Architecture + UI/API skeleton ✅ |
 | 2 | Property CRUD API + seed data |
 | 3 | Booking validation, availability, double-booking prevention |
-| 4 | Razorpay payments + confirmation |
+| 4 | Razorpay payments + confirmation ✅ |
 
 ## Tech stack
 
 - **Frontend:** React, Vite, React Router, react-day-picker, CSS modules per component
 - **Backend:** Node.js, Express, Mongoose, MongoDB
-- **Payments (later):** Razorpay
+- **Payments:** Razorpay Standard Checkout
+
+### Razorpay (local + Vercel)
+
+1. Copy keys into `backend/.env` (from `backend/.env.example`):
+   - `RAZORPAY_KEY_ID`
+   - `RAZORPAY_KEY_SECRET`
+2. Copy the **key ID only** into `frontend/.env`:
+   - `VITE_RAZORPAY_KEY_ID` (same value as `RAZORPAY_KEY_ID`)
+3. On Vercel, add all three variables above to **both** frontend and backend services (or project env).
+4. Test with Razorpay test mode: open a property → **Book** → select dates → **Pay & reserve**.
+
+API endpoints: `POST /api/create-order`, `POST /api/verify-payment`
 
 ## Repository
 

@@ -7,7 +7,12 @@ import { DayPicker } from "react-day-picker";
 import "react-day-picker/style.css";
 import { fetchPropertyAvailability } from "../../api/calendar.js";
 import { createBooking } from "../../api/bookings.js";
+import { createPaymentOrder, verifyPayment } from "../../api/payments.js";
+import { siteConfig } from "../../config/siteConfig.js";
+import { loadRazorpayCheckout } from "../../utils/loadRazorpay.js";
 import "./BookingWidget.css";
+
+const RAZORPAY_KEY_ID = import.meta.env.VITE_RAZORPAY_KEY_ID;
 
 function BookingWidget({
   property,
@@ -116,6 +121,64 @@ function BookingWidget({
     setCheckOut(range.to);
   };
 
+  const openRazorpayCheckout = async (booking, order) => {
+    const Razorpay = await loadRazorpayCheckout();
+    const key = order.key_id || RAZORPAY_KEY_ID;
+
+    if (!key) {
+      throw new Error(
+        "Payment is not configured. Please add VITE_RAZORPAY_KEY_ID on the frontend.",
+      );
+    }
+
+    return new Promise((resolve, reject) => {
+      const options = {
+        key,
+        amount: order.amount,
+        currency: order.currency,
+        name: siteConfig.name,
+        description: `${property.title} — ${nights} night${nights > 1 ? "s" : ""}`,
+        order_id: order.order_id,
+        prefill: {
+          name: guestName.trim(),
+          email: guestEmail.trim(),
+          contact: guestPhone.trim() || undefined,
+        },
+        theme: { color: "#1c1917" },
+        handler: async (response) => {
+          try {
+            const verified = await verifyPayment({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              bookingId: booking.id,
+            });
+            resolve(verified);
+          } catch (err) {
+            reject(err);
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            reject(new Error("Payment cancelled. Your dates are held until payment completes."));
+          },
+        },
+      };
+
+      const rzp = new Razorpay(options);
+
+      rzp.on("payment.failed", (response) => {
+        const description =
+          response.error?.description ||
+          response.error?.reason ||
+          "Payment failed. Please try again.";
+        reject(new Error(description));
+      });
+
+      rzp.open();
+    });
+  };
+
   const handleReserve = async () => {
     if (!checkIn || !checkOut || nights < 1) {
       setBookingError("Please select valid check-in and check-out dates.");
@@ -124,6 +187,11 @@ function BookingWidget({
 
     if (!guestName.trim() || !guestEmail.trim()) {
       setBookingError("Name and email are required to reserve.");
+      return;
+    }
+
+    if (total < 1) {
+      setBookingError("Total amount must be at least ₹1 to pay online.");
       return;
     }
 
@@ -142,7 +210,12 @@ function BookingWidget({
         guests,
       });
 
-      setBookingSuccess(result.booking);
+      const booking = result.booking;
+      const order = await createPaymentOrder({ bookingId: booking.id });
+
+      const verified = await openRazorpayCheckout(booking, order);
+
+      setBookingSuccess(verified.booking || booking);
       const refreshed = await fetchPropertyAvailability(property.slug);
       setBlockedDates(refreshed.blockedDates || []);
     } catch (err) {
@@ -264,7 +337,16 @@ function BookingWidget({
       {bookingError && <p className="booking-widget__error">{bookingError}</p>}
       {bookingSuccess && (
         <p className="booking-widget__success">
-          Reservation held (pending payment). Reference: {bookingSuccess.id}
+          Payment received — your stay is confirmed. Reference:{" "}
+          {bookingSuccess.id}
+          {bookingSuccess.razorpayPaymentId && (
+            <>
+              <br />
+              <span className="booking-widget__payment-id">
+                Payment ID: {bookingSuccess.razorpayPaymentId}
+              </span>
+            </>
+          )}
         </p>
       )}
 
@@ -283,7 +365,7 @@ function BookingWidget({
           disabled={submitting || nights < 1}
           onClick={handleReserve}
         >
-          {submitting ? "Checking availability…" : "Reserve dates"}
+          {submitting ? "Processing…" : "Pay & reserve"}
         </button>
       )}
     </aside>

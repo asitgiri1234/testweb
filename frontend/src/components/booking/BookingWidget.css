@@ -75,6 +75,11 @@
   margin-top: 0.5rem;
 }
 
+.booking-widget__payment-id {
+  font-size: 0.8rem;
+  opacity: 0.85;
+}
+
 .booking-widget__success {
   font-size: 0.85rem;
   color: var(--color-charcoal-muted);

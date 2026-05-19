@@ -20,6 +20,7 @@
     "ical-generator": "^10.2.0",
     "mongoose": "^8.9.3",
     "node-ical": "^0.26.1",
+    "razorpay": "^2.9.6",
     "resend": "^6.12.3"
   }
 }

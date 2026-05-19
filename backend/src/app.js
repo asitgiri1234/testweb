@@ -69,6 +69,10 @@ function healthHandler(req, res) {
     status: "ok",
     message: "Vacation rental API is running",
     emailConfigured: Boolean(process.env.RESEND_API_KEY?.trim()),
+    razorpayConfigured: Boolean(
+      process.env.RAZORPAY_KEY_ID?.trim() &&
+        process.env.RAZORPAY_KEY_SECRET?.trim(),
+    ),
     calendars: {
       amberHouseExport: "/api/calendar/property-1.ics",
       rooftopSerenityExport: "/api/calendar/property-2.ics",

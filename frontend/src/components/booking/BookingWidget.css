@@ -45,6 +45,18 @@
   margin-bottom: 1rem;
 }
 
+.booking-widget__warning {
+  color: var(--color-muted);
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+  line-height: 1.5;
+}
+
+.booking-widget__hint--payment {
+  margin-top: 0.75rem;
+  text-align: center;
+}
+
 .booking-widget__hint {
   font-size: 0.8rem;
   font-style: italic;

@@ -3,6 +3,8 @@
  */
 import Booking from "../models/Booking.js";
 import Property from "../models/Property.js";
+import { getStaticProperty } from "../config/propertiesConfig.js";
+import { ensureDb } from "../middleware/ensureDb.js";
 import { isRangeAvailable } from "./availabilityService.js";
 import { clearAirbnbCache } from "./airbnbImportService.js";
 import { getCalendarSlugForPropertySlug } from "../config/calendarConfig.js";
@@ -36,10 +38,23 @@ export async function createBooking(payload) {
     throw error;
   }
 
-  const property = await Property.findOne({
+  await ensureDb();
+
+  let property = await Property.findOne({
     slug: propertySlug,
     isActive: { $ne: false },
   });
+
+  if (!property) {
+    const staticData = getStaticProperty(propertySlug);
+    if (staticData) {
+      property = await Property.findOneAndUpdate(
+        { slug: propertySlug },
+        staticData,
+        { upsert: true, new: true },
+      );
+    }
+  }
 
   if (!property) {
     const error = new Error("Property not found");

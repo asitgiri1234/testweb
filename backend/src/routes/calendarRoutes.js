@@ -17,8 +17,8 @@ async function withDb(req, res, next) {
   }
 }
 
-/** GET /calendar/availability/amber-house */
-router.get("/availability/:propertySlug", withDb, getPropertyAvailability);
+/** GET /calendar/availability/amber-house — works without DB (Airbnb-only fallback) */
+router.get("/availability/:propertySlug", getPropertyAvailability);
 
 /** GET /calendar/info/property-1 */
 router.get("/info/:calendarSlug", getCalendarInfo);

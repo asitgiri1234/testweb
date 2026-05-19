@@ -163,6 +163,17 @@ This repo uses Vercel **Services** ([`vercel.json`](vercel.json)):
 4. Add all environment variables from the tables above in **Project → Settings → Environment Variables**.
 5. Redeploy after changing env vars.
 
+**Required for calendar + Pay & reserve on the live site:**
+
+| Variable | Why |
+|----------|-----|
+| `MONGODB_URI` | Stores bookings and merges website blocked dates into the calendar |
+| `RAZORPAY_KEY_ID` | Backend payment orders |
+| `RAZORPAY_KEY_SECRET` | Payment signature verification |
+| `VITE_RAZORPAY_KEY_ID` | Same key ID for the checkout modal (optional if backend returns `key_id`) |
+
+Check deployment: `GET https://YOUR-DOMAIN/api/health` should show `"razorpayConfigured": true`.
+
 ### Airbnb ↔ website calendar sync
 
 | Property | Calendar slug | Import Airbnb `.ics` | Export for Airbnb |

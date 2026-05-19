@@ -7,6 +7,8 @@ import {
   getCalendarConfig,
   getCalendarSlugForPropertySlug,
 } from "../config/calendarConfig.js";
+import { getStaticProperty } from "../config/propertiesConfig.js";
+import { tryEnsureDb } from "../middleware/ensureDb.js";
 import { fetchAirbnbBlockedRanges } from "./airbnbImportService.js";
 import {
   eachNightInRange,
@@ -20,10 +22,28 @@ const ACTIVE_BOOKING_STATUSES = ["pending", "confirmed"];
 const ACTIVE_PAYMENT_STATUSES = ["pending", "paid"];
 
 async function resolveProperty(propertySlug) {
-  return Property.findOne({ slug: propertySlug, isActive: { $ne: false } });
+  const dbReady = await tryEnsureDb();
+  if (!dbReady) return null;
+
+  const fromDb = await Property.findOne({
+    slug: propertySlug,
+    isActive: { $ne: false },
+  });
+  if (fromDb) return fromDb;
+
+  const staticData = getStaticProperty(propertySlug);
+  if (!staticData) return null;
+
+  return Property.findOneAndUpdate({ slug: propertySlug }, staticData, {
+    upsert: true,
+    new: true,
+  });
 }
 
 export async function getWebsiteBookingRanges(propertyId) {
+  const dbReady = await tryEnsureDb();
+  if (!dbReady || !propertyId) return [];
+
   const bookings = await Booking.find({
     property: propertyId,
     bookingStatus: { $in: ACTIVE_BOOKING_STATUSES },
@@ -52,10 +72,15 @@ export async function getMergedBlockedRanges(calendarSlug) {
     ? await getWebsiteBookingRanges(property._id)
     : [];
 
-  const airbnbRanges = await fetchAirbnbBlockedRanges(
-    config.airbnbIcalUrl,
-    calendarSlug,
-  );
+  let airbnbRanges = [];
+  try {
+    airbnbRanges = await fetchAirbnbBlockedRanges(
+      config.airbnbIcalUrl,
+      calendarSlug,
+    );
+  } catch (err) {
+    console.warn(`Airbnb calendar import failed (${calendarSlug}):`, err.message);
+  }
 
   return {
     property,
@@ -84,12 +109,15 @@ export async function getAvailabilityByPropertySlug(propertySlug) {
     }
   }
 
+  const dbReady = await tryEnsureDb();
+
   return {
     propertySlug,
     calendarSlug,
     propertyId: property?._id?.toString() || null,
     title: config.title,
     hasAirbnbSync: Boolean(config.airbnbIcalUrl),
+    dbConnected: dbReady,
     blockedDates: [...blockedDatesSet].sort(),
     blockedRanges: ranges.map((range) => ({
       from: toDateString(range.start),

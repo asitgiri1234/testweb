@@ -31,13 +31,18 @@ export const errorHandler = (err, req, res, next) => {
 
   console.error(`[${req.method} ${req.originalUrl}]`, err.stack || err);
 
-  const statusCode = res.statusCode >= 400 ? res.statusCode : 500;
+  const statusCode = err.statusCode || (res.statusCode >= 400 ? res.statusCode : 500);
+
+  const clientMessage =
+    err.statusCode && err.message
+      ? err.message
+      : process.env.NODE_ENV === "production"
+        ? "Something went wrong. Please try again."
+        : err.message || "Internal server error";
 
   res.status(statusCode).json({
     success: false,
-    message:
-      process.env.NODE_ENV === "production"
-        ? "Something went wrong. Please try again."
-        : err.message || "Internal server error",
+    message: clientMessage,
+    code: err.code,
   });
 };

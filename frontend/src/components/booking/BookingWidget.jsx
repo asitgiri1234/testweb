@@ -7,8 +7,13 @@ import { DayPicker } from "react-day-picker";
 import "react-day-picker/style.css";
 import { fetchPropertyAvailability } from "../../api/calendar.js";
 import { createBooking } from "../../api/bookings.js";
-import { createPaymentOrder, verifyPayment } from "../../api/payments.js";
+import {
+  createPaymentOrder,
+  fetchPaymentConfig,
+  verifyPayment,
+} from "../../api/payments.js";
 import { siteConfig } from "../../config/siteConfig.js";
+import { toLocalDateString } from "../../utils/dateStrings.js";
 import { loadRazorpayCheckout } from "../../utils/loadRazorpay.js";
 import "./BookingWidget.css";
 
@@ -30,8 +35,9 @@ function BookingWidget({
   const [guests, setGuests] = useState(defaultGuests);
   const [blockedDates, setBlockedDates] = useState([]);
   const [calendarLoading, setCalendarLoading] = useState(true);
-  const [calendarError, setCalendarError] = useState("");
+  const [calendarWarning, setCalendarWarning] = useState("");
   const [hasAirbnbSync, setHasAirbnbSync] = useState(false);
+  const [paymentConfigured, setPaymentConfigured] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [bookingError, setBookingError] = useState("");
   const [bookingSuccess, setBookingSuccess] = useState(null);
@@ -41,23 +47,50 @@ function BookingWidget({
   const [guestPhone, setGuestPhone] = useState("");
 
   useEffect(() => {
+    let cancelled = false;
+
+    async function loadPaymentConfig() {
+      try {
+        const config = await fetchPaymentConfig();
+        if (!cancelled) {
+          setPaymentConfigured(Boolean(config.configured && config.key_id));
+        }
+      } catch {
+        if (!cancelled) setPaymentConfigured(false);
+      }
+    }
+
+    loadPaymentConfig();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
     if (!property?.slug) return undefined;
 
     let cancelled = false;
 
     async function loadAvailability() {
       setCalendarLoading(true);
-      setCalendarError("");
+      setCalendarWarning("");
       try {
         const data = await fetchPropertyAvailability(property.slug);
         if (!cancelled) {
           setBlockedDates(data.blockedDates || []);
           setHasAirbnbSync(Boolean(data.hasAirbnbSync));
+          if (data.dbConnected === false) {
+            setCalendarWarning(
+              "Showing Airbnb availability only. Website bookings sync when the database is connected.",
+            );
+          }
         }
       } catch (err) {
         if (!cancelled) {
-          setCalendarError(err.message);
           setBlockedDates([]);
+          setCalendarWarning(
+            "Could not load live availability. You can still select dates — we will verify before confirming.",
+          );
         }
       } finally {
         if (!cancelled) setCalendarLoading(false);
@@ -84,11 +117,13 @@ function BookingWidget({
   const cleaning = nights > 0 ? property?.cleaningFee || 0 : 0;
   const total = subtotal + cleaning;
 
-  const isDateBlocked = (date) => {
-    const key = new Date(date);
-    key.setHours(0, 0, 0, 0);
-    return blockedSet.has(key.toISOString().slice(0, 10));
-  };
+  const today = useMemo(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }, []);
+
+  const isDateBlocked = (date) => blockedSet.has(toLocalDateString(date));
 
   const handleRangeSelect = (range) => {
     setBookingError("");
@@ -127,7 +162,7 @@ function BookingWidget({
 
     if (!key) {
       throw new Error(
-        "Payment is not configured. Please add VITE_RAZORPAY_KEY_ID on the frontend.",
+        "Payment gateway is not configured on the server. Please contact us to complete your booking.",
       );
     }
 
@@ -160,7 +195,11 @@ function BookingWidget({
         },
         modal: {
           ondismiss: () => {
-            reject(new Error("Payment cancelled. Your dates are held until payment completes."));
+            reject(
+              new Error(
+                "Payment cancelled. Your dates are held until payment completes.",
+              ),
+            );
           },
         },
       };
@@ -211,19 +250,40 @@ function BookingWidget({
       });
 
       const booking = result.booking;
-      const order = await createPaymentOrder({ bookingId: booking.id });
 
+      if (!paymentConfigured) {
+        setBookingSuccess({
+          ...booking,
+          pendingPayment: true,
+        });
+        return;
+      }
+
+      const order = await createPaymentOrder({ bookingId: booking.id });
       const verified = await openRazorpayCheckout(booking, order);
 
       setBookingSuccess(verified.booking || booking);
       const refreshed = await fetchPropertyAvailability(property.slug);
       setBlockedDates(refreshed.blockedDates || []);
     } catch (err) {
-      setBookingError(err.message);
+      if (err.code === "DB_NOT_CONFIGURED") {
+        setBookingError(
+          "Booking service is temporarily unavailable. Please use the contact form and we will confirm your stay manually.",
+        );
+      } else {
+        setBookingError(err.message);
+      }
     } finally {
       setSubmitting(false);
     }
   };
+
+  const ctaLabel =
+    paymentConfigured === false
+      ? "Request reservation"
+      : submitting
+        ? "Processing…"
+        : "Pay & reserve";
 
   return (
     <aside className={`booking-widget ${compact ? "booking-widget--compact" : ""}`}>
@@ -260,10 +320,7 @@ function BookingWidget({
               mode="range"
               selected={{ from: checkIn, to: checkOut }}
               onSelect={handleRangeSelect}
-              disabled={[
-                { before: new Date() },
-                (date) => isDateBlocked(date),
-              ]}
+              disabled={[{ before: today }, (date) => isDateBlocked(date)]}
               numberOfMonths={compact ? 1 : 2}
             />
           )}
@@ -272,8 +329,8 @@ function BookingWidget({
               ? `Unavailable dates include ${property.title} Airbnb bookings and website reservations.`
               : "Unavailable dates include existing website reservations."}
           </p>
-          {calendarError && (
-            <p className="booking-widget__error">{calendarError}</p>
+          {calendarWarning && (
+            <p className="booking-widget__warning">{calendarWarning}</p>
           )}
         </div>
       )}
@@ -337,14 +394,23 @@ function BookingWidget({
       {bookingError && <p className="booking-widget__error">{bookingError}</p>}
       {bookingSuccess && (
         <p className="booking-widget__success">
-          Payment received — your stay is confirmed. Reference:{" "}
-          {bookingSuccess.id}
-          {bookingSuccess.razorpayPaymentId && (
+          {bookingSuccess.pendingPayment ? (
             <>
-              <br />
-              <span className="booking-widget__payment-id">
-                Payment ID: {bookingSuccess.razorpayPaymentId}
-              </span>
+              Reservation requested for ₹{total.toLocaleString("en-IN")}. Reference:{" "}
+              {bookingSuccess.id}. Online payment is being set up — we will contact you
+              at {guestEmail.trim()} to confirm.
+            </>
+          ) : (
+            <>
+              Payment received — your stay is confirmed. Reference: {bookingSuccess.id}
+              {bookingSuccess.razorpayPaymentId && (
+                <>
+                  <br />
+                  <span className="booking-widget__payment-id">
+                    Payment ID: {bookingSuccess.razorpayPaymentId}
+                  </span>
+                </>
+              )}
             </>
           )}
         </p>
@@ -362,11 +428,18 @@ function BookingWidget({
         <button
           type="button"
           className="btn booking-widget__cta"
-          disabled={submitting || nights < 1}
+          disabled={submitting || nights < 1 || paymentConfigured === null}
           onClick={handleReserve}
         >
-          {submitting ? "Processing…" : "Pay & reserve"}
+          {ctaLabel}
         </button>
+      )}
+
+      {paymentConfigured === false && !compact && (
+        <p className="booking-widget__hint booking-widget__hint--payment">
+          Online payment will open here once Razorpay keys are added in Vercel. You can
+          still submit a reservation request above.
+        </p>
       )}
     </aside>
   );

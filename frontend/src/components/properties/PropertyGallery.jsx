@@ -6,7 +6,7 @@ import "./PropertyGallery.css";
 
 const SWIPE_THRESHOLD_PX = 48;
 
-function PropertyGallery({ images = [] }) {
+function PropertyGallery({ images = [], className = "" }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const touchStartX = useRef(null);
 
@@ -58,7 +58,10 @@ function PropertyGallery({ images = [] }) {
   };
 
   return (
-    <section className="gallery" aria-label="Property photos">
+    <section
+      className={`gallery${className ? ` ${className}` : ""}`}
+      aria-label="Property photos"
+    >
       <div
         className="gallery__main"
         onTouchStart={hasMultiple ? handleTouchStart : undefined}

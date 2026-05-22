@@ -6,3 +6,13 @@
   margin-top: 3rem;
   text-align: center;
 }
+
+@media (max-width: 640px) {
+  .home-featured {
+    padding-top: 3.5rem;
+  }
+
+  .home-featured__cta {
+    margin-top: 2rem;
+  }
+}

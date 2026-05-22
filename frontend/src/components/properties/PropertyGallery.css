@@ -123,6 +123,18 @@
   color: var(--color-muted);
 }
 
+@media (max-width: 768px) {
+  .gallery__main-image {
+    max-height: none;
+    aspect-ratio: 4 / 3;
+  }
+
+  .gallery__thumb {
+    flex: 0 0 72px;
+    height: 52px;
+  }
+}
+
 @media (max-width: 640px) {
   .gallery__nav {
     width: 2.25rem;
@@ -136,5 +148,11 @@
 
   .gallery__nav--next {
     right: 0.5rem;
+  }
+
+  .gallery__counter {
+    top: 0.5rem;
+    right: 0.5rem;
+    font-size: 0.7rem;
   }
 }

@@ -27,7 +27,9 @@ function PropertyDetailsPage() {
 
   return (
     <section className="page property-details">
-      <div className="container">
+      <div className="container property-details__container">
+        <PropertyGallery images={property.images} className="property-details__gallery" />
+
         <header className="property-details__header">
           <div className="property-details__rating">
             <span className="property-details__rating-stars">
@@ -54,8 +56,6 @@ function PropertyDetailsPage() {
 
         <div className="property-details__layout">
           <div className="property-details__main">
-            <PropertyGallery images={property.images} />
-
             <PropertyDescription sections={property.descriptionSections} />
 
             <AmenitiesSection amenities={property.amenities} />

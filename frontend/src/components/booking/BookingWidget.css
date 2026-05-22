@@ -133,3 +133,22 @@
 .booking-widget--compact .booking-widget__calendar {
   display: none;
 }
+
+@media (max-width: 900px) {
+  .booking-widget {
+    position: static;
+    top: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .booking-widget {
+    padding: 1.35rem;
+    border-radius: var(--radius);
+  }
+
+  .booking-widget__price {
+    font-size: 1.35rem;
+    margin-bottom: 1rem;
+  }
+}

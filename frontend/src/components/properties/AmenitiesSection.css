@@ -20,3 +20,13 @@
   color: var(--color-charcoal-muted);
   border-left: 2px solid var(--color-linen);
 }
+
+@media (max-width: 640px) {
+  .amenities__list {
+    grid-template-columns: 1fr;
+  }
+
+  .amenities__title {
+    font-size: 1.35rem;
+  }
+}

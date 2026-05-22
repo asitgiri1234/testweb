@@ -257,3 +257,38 @@ img {
   left: 0;
   color: var(--color-stone);
 }
+
+@media (max-width: 768px) {
+  .container {
+    padding-left: max(1.25rem, env(safe-area-inset-left, 0px));
+    padding-right: max(1.25rem, env(safe-area-inset-right, 0px));
+  }
+
+  .page {
+    padding: 3.25rem 0 4rem;
+  }
+
+  .page-header {
+    margin-bottom: 2.25rem;
+  }
+
+  .grid-2 {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .btn {
+    padding: 0.85rem 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding-left: max(1rem, env(safe-area-inset-left, 0px));
+    padding-right: max(1rem, env(safe-area-inset-right, 0px));
+  }
+
+  .page-title {
+    font-size: clamp(1.75rem, 7vw, 2.25rem);
+  }
+}

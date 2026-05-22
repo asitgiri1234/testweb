@@ -18,8 +18,44 @@ import {
   toDateString,
 } from "../utils/dateUtils.js";
 
-const ACTIVE_BOOKING_STATUSES = ["pending", "confirmed"];
-const ACTIVE_PAYMENT_STATUSES = ["pending", "paid"];
+const DEFAULT_HOLD_MINUTES = 15;
+
+function getPaymentHoldMinutes() {
+  const minutes = Number(process.env.PAYMENT_HOLD_MINUTES);
+  return Number.isFinite(minutes) && minutes > 0
+    ? minutes
+    : DEFAULT_HOLD_MINUTES;
+}
+
+function getHoldCutoffDate() {
+  return new Date(Date.now() - getPaymentHoldMinutes() * 60 * 1000);
+}
+
+/** Cancel unpaid pending bookings past the short checkout hold window. */
+export async function expireStalePendingBookings(propertyId) {
+  if (!propertyId) return 0;
+
+  const dbReady = await tryEnsureDb();
+  if (!dbReady) return 0;
+
+  const cutoff = getHoldCutoffDate();
+  const result = await Booking.updateMany(
+    {
+      property: propertyId,
+      paymentStatus: "pending",
+      bookingStatus: "pending",
+      createdAt: { $lt: cutoff },
+    },
+    {
+      $set: {
+        paymentStatus: "failed",
+        bookingStatus: "cancelled",
+      },
+    },
+  );
+
+  return result.modifiedCount;
+}
 
 async function resolveProperty(propertySlug) {
   const dbReady = await tryEnsureDb();
@@ -44,11 +80,23 @@ export async function getWebsiteBookingRanges(propertyId) {
   const dbReady = await tryEnsureDb();
   if (!dbReady || !propertyId) return [];
 
+  await expireStalePendingBookings(propertyId);
+
+  const holdCutoff = getHoldCutoffDate();
+
+  // Paid bookings always block. Unpaid pending only block during the short payment window.
   const bookings = await Booking.find({
     property: propertyId,
-    bookingStatus: { $in: ACTIVE_BOOKING_STATUSES },
-    paymentStatus: { $in: ACTIVE_PAYMENT_STATUSES },
-  }).select("checkIn checkOut guestName bookingStatus");
+    bookingStatus: { $ne: "cancelled" },
+    $or: [
+      { paymentStatus: "paid" },
+      {
+        paymentStatus: "pending",
+        bookingStatus: "pending",
+        createdAt: { $gte: holdCutoff },
+      },
+    ],
+  }).select("checkIn checkOut guestName bookingStatus paymentStatus");
 
   return bookings.map((booking) => ({
     start: booking.checkIn,

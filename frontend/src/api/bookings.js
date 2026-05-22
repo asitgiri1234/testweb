@@ -16,8 +16,24 @@ export async function createBooking(payload) {
     const error = new Error(data.message || "Unable to create booking");
     error.status = response.status;
     error.code = data.code || data.error;
-    error.status = response.status;
     error.conflict = data.conflict;
+    throw error;
+  }
+
+  return data;
+}
+
+export async function releaseBookingHold(bookingId) {
+  const response = await fetch(`${API_URL}/bookings/${bookingId}/release`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const error = new Error(data.message || "Unable to release booking hold");
+    error.status = response.status;
     throw error;
   }
 

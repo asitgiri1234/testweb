@@ -38,6 +38,30 @@ export const createBooking = async (req, res, next) => {
   }
 };
 
+export const releaseBookingHold = async (req, res, next) => {
+  try {
+    const booking = await bookingService.releaseBookingHold(req.params.id);
+
+    return res.json({
+      success: true,
+      message: "Hold released — these dates are available again.",
+      booking: {
+        id: booking._id,
+        bookingStatus: booking.bookingStatus,
+        paymentStatus: booking.paymentStatus,
+      },
+    });
+  } catch (err) {
+    if (err.statusCode) {
+      return res.status(err.statusCode).json({
+        success: false,
+        message: err.message,
+      });
+    }
+    return next(err);
+  }
+};
+
 export const getBookingById = async (req, res, next) => {
   try {
     const booking = await bookingService.getBookingById(req.params.id);

@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/style.css";
 import { fetchPropertyAvailability } from "../../api/calendar.js";
-import { createBooking } from "../../api/bookings.js";
+import { createBooking, releaseBookingHold } from "../../api/bookings.js";
 import {
   createPaymentOrder,
   fetchPaymentConfig,
@@ -162,6 +162,24 @@ function BookingWidget({
     setCheckOut(range.to);
   };
 
+  const refreshAvailability = async () => {
+    try {
+      const refreshed = await fetchPropertyAvailability(property.slug);
+      setBlockedDates(refreshed.blockedDates || []);
+    } catch {
+      /* calendar will refresh on next load */
+    }
+  };
+
+  const releaseHold = async (bookingId) => {
+    try {
+      await releaseBookingHold(bookingId);
+    } catch {
+      /* hold may already be expired */
+    }
+    await refreshAvailability();
+  };
+
   const openRazorpayCheckout = async (booking, order) => {
     const Razorpay = await loadRazorpayCheckout();
 
@@ -199,11 +217,8 @@ function BookingWidget({
             }
           },
           onDismiss: () => {
-            reject(
-              new Error(
-                "Payment cancelled. Your dates are held until payment completes.",
-              ),
-            );
+            releaseHold(booking.id);
+            reject(new Error("Payment cancelled. Those dates are available again."));
           },
         });
       } catch (err) {
@@ -214,6 +229,7 @@ function BookingWidget({
       const rzp = new Razorpay(options);
 
       rzp.on("payment.failed", (response) => {
+        releaseHold(booking.id);
         const description =
           response.error?.description ||
           response.error?.reason ||
@@ -279,11 +295,16 @@ function BookingWidget({
             "Razorpay checkout configuration is invalid for the current API keys.",
         );
       }
-      const verified = await openRazorpayCheckout(booking, order);
-
-      setBookingSuccess(verified.booking || booking);
-      const refreshed = await fetchPropertyAvailability(property.slug);
-      setBlockedDates(refreshed.blockedDates || []);
+      try {
+        const verified = await openRazorpayCheckout(booking, order);
+        setBookingSuccess(verified.booking || booking);
+        await refreshAvailability();
+      } catch (payErr) {
+        if (booking?.id) {
+          await releaseHold(booking.id);
+        }
+        throw payErr;
+      }
     } catch (err) {
       if (
         err.code === "DB_NOT_CONFIGURED" ||

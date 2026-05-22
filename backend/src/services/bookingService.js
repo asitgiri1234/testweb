@@ -5,7 +5,10 @@ import Booking from "../models/Booking.js";
 import Property from "../models/Property.js";
 import { getStaticProperty } from "../config/propertiesConfig.js";
 import { ensureDb } from "../middleware/ensureDb.js";
-import { isRangeAvailable } from "./availabilityService.js";
+import {
+  expireStalePendingBookings,
+  isRangeAvailable,
+} from "./availabilityService.js";
 import { clearAirbnbCache } from "./airbnbImportService.js";
 import { getCalendarSlugForPropertySlug } from "../config/calendarConfig.js";
 
@@ -81,6 +84,8 @@ export async function createBooking(payload) {
     throw error;
   }
 
+  await expireStalePendingBookings(property._id);
+
   const availability = await isRangeAvailable(propertySlug, checkIn, checkOut);
   if (!availability.available) {
     const error = new Error(
@@ -128,4 +133,47 @@ export async function createBooking(payload) {
 
 export async function getBookingById(id) {
   return Booking.findById(id).populate("property", "title slug");
+}
+
+/** Release dates when guest closes checkout without paying. */
+export async function releaseBookingHold(bookingId) {
+  await ensureDb();
+
+  const booking = await Booking.findById(bookingId).populate(
+    "property",
+    "slug",
+  );
+
+  if (!booking) {
+    const error = new Error("Booking not found");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  if (booking.paymentStatus === "paid") {
+    const error = new Error("This booking is already paid and cannot be released");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (booking.bookingStatus === "cancelled") {
+    return booking;
+  }
+
+  booking.paymentStatus = "failed";
+  booking.bookingStatus = "cancelled";
+  await booking.save();
+
+  const propertySlug =
+    typeof booking.property === "object" && booking.property?.slug
+      ? booking.property.slug
+      : null;
+  if (propertySlug) {
+    const calendarSlug = getCalendarSlugForPropertySlug(propertySlug);
+    if (calendarSlug) {
+      clearAirbnbCache(calendarSlug);
+    }
+  }
+
+  return booking;
 }

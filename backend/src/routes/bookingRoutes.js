@@ -2,6 +2,7 @@ import express from "express";
 import {
   createBooking,
   getBookingById,
+  releaseBookingHold,
 } from "../controllers/bookingController.js";
 import { ensureDb } from "../middleware/ensureDb.js";
 
@@ -18,6 +19,9 @@ router.use(async (req, res, next) => {
 
 // POST /api/bookings
 router.post("/", createBooking);
+
+// POST /api/bookings/:id/release — cancel unpaid hold (payment dismissed)
+router.post("/:id/release", releaseBookingHold);
 
 // GET /api/bookings/:id
 router.get("/:id", getBookingById);

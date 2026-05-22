@@ -27,7 +27,11 @@ export function buildRazorpayCheckoutOptions({
     prefill,
     theme: { color: "#1c1917" },
     handler: onSuccess,
-    modal: { ondismiss: onDismiss },
+    modal: {
+      ondismiss: () => {
+        void Promise.resolve(onDismiss?.());
+      },
+    },
   };
 
   const mode = serverPaymentConfig?.checkout_mode;

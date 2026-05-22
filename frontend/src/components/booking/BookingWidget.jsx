@@ -172,10 +172,11 @@ function BookingWidget({
   };
 
   const releaseHold = async (bookingId) => {
+    if (!bookingId) return;
     try {
       await releaseBookingHold(bookingId);
-    } catch {
-      /* hold may already be expired */
+    } catch (err) {
+      console.warn("[booking] release hold:", err.message);
     }
     await refreshAvailability();
   };
@@ -191,6 +192,13 @@ function BookingWidget({
     }
 
     return new Promise((resolve, reject) => {
+      let settled = false;
+      const finish = (fn) => {
+        if (settled) return;
+        settled = true;
+        fn();
+      };
+
       let options;
       try {
         options = buildRazorpayCheckoutOptions({
@@ -211,21 +219,25 @@ function BookingWidget({
                 razorpay_signature: response.razorpay_signature,
                 bookingId: booking.id,
               });
-              resolve(verified);
+              finish(() => resolve(verified));
             } catch (err) {
-              reject(
-                Object.assign(err, {
-                  code: err.code || "PAYMENT_VERIFY_FAILED",
-                }),
+              finish(() =>
+                reject(
+                  Object.assign(err, {
+                    code: err.code || "PAYMENT_VERIFY_FAILED",
+                  }),
+                ),
               );
             }
           },
-          onDismiss: () => {
-            releaseHold(booking.id);
-            reject(
-              Object.assign(
-                new Error("Payment cancelled. Those dates are available again."),
-                { code: "PAYMENT_CANCELLED" },
+          onDismiss: async () => {
+            await releaseHold(booking.id);
+            finish(() =>
+              reject(
+                Object.assign(
+                  new Error("Payment cancelled. Those dates are available again."),
+                  { code: "PAYMENT_CANCELLED" },
+                ),
               ),
             );
           },
@@ -237,13 +249,15 @@ function BookingWidget({
 
       const rzp = new Razorpay(options);
 
-      rzp.on("payment.failed", (response) => {
-        releaseHold(booking.id);
+      rzp.on("payment.failed", async (response) => {
+        await releaseHold(booking.id);
         const description =
           response.error?.description ||
           response.error?.reason ||
           "Payment failed. Please try again.";
-        reject(Object.assign(new Error(description), { code: "PAYMENT_FAILED" }));
+        finish(() =>
+          reject(Object.assign(new Error(description), { code: "PAYMENT_FAILED" })),
+        );
       });
 
       rzp.open();
@@ -309,9 +323,10 @@ function BookingWidget({
         setBookingSuccess(verified.booking || booking);
         await refreshAvailability();
       } catch (payErr) {
-        const releaseAfterPayment =
-          payErr?.code === "PAYMENT_CANCELLED" || payErr?.code === "PAYMENT_FAILED";
-        if (booking?.id && releaseAfterPayment) {
+        if (
+          payErr?.code === "PAYMENT_CANCELLED" ||
+          payErr?.code === "PAYMENT_FAILED"
+        ) {
           await releaseHold(booking.id);
         }
         if (payErr?.code === "PAYMENT_VERIFY_FAILED") {

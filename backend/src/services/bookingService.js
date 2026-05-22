@@ -165,9 +165,27 @@ export async function releaseBookingHold(bookingId) {
     return booking;
   }
 
+  await Booking.findByIdAndUpdate(booking._id, {
+    $set: {
+      paymentStatus: "failed",
+      bookingStatus: "cancelled",
+    },
+    $unset: {
+      razorpayOrderId: "",
+      razorpayPaymentId: "",
+      razorpaySignature: "",
+    },
+  });
   booking.paymentStatus = "failed";
   booking.bookingStatus = "cancelled";
-  await booking.save();
+
+  const propertyId =
+    typeof booking.property === "object" && booking.property?._id
+      ? booking.property._id
+      : booking.property;
+  if (propertyId) {
+    await expireStalePendingBookings(propertyId);
+  }
 
   const propertySlug =
     typeof booking.property === "object" && booking.property?.slug

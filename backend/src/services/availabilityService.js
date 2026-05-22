@@ -40,34 +40,19 @@ export async function expireStalePendingBookings(propertyId) {
   if (!dbReady) return 0;
 
   const cutoff = getHoldCutoffDate();
-  const orderHoldCutoff = new Date(
-    Date.now() - 24 * 60 * 60 * 1000,
-  );
 
   const result = await Booking.updateMany(
     {
       property: propertyId,
       paymentStatus: "pending",
       bookingStatus: "pending",
-      $or: [
-        {
-          createdAt: { $lt: cutoff },
-          $or: [
-            { razorpayOrderId: { $exists: false } },
-            { razorpayOrderId: null },
-            { razorpayOrderId: "" },
-          ],
-        },
-        {
-          razorpayOrderId: { $exists: true, $nin: [null, ""] },
-          createdAt: { $lt: orderHoldCutoff },
-        },
-      ],
+      createdAt: { $lt: cutoff },
     },
     {
       $set: {
         paymentStatus: "failed",
         bookingStatus: "cancelled",
+        razorpayOrderId: null,
       },
     },
   );
@@ -102,7 +87,7 @@ export async function getWebsiteBookingRanges(propertyId) {
 
   const holdCutoff = getHoldCutoffDate();
 
-  // Paid bookings always block. Pending holds block during checkout or after Razorpay order exists.
+  // Paid bookings always block. Unpaid pending only block during the short checkout window.
   const bookings = await Booking.find({
     property: propertyId,
     bookingStatus: { $ne: "cancelled" },
@@ -111,10 +96,7 @@ export async function getWebsiteBookingRanges(propertyId) {
       {
         paymentStatus: "pending",
         bookingStatus: "pending",
-        $or: [
-          { createdAt: { $gte: holdCutoff } },
-          { razorpayOrderId: { $exists: true, $nin: [null, ""] } },
-        ],
+        createdAt: { $gte: holdCutoff },
       },
     ],
   }).select("checkIn checkOut guestName bookingStatus paymentStatus");

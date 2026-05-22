@@ -152,7 +152,7 @@ npm run dev
 |---------|-----|
 | Button says **Request reservation** instead of **Pay & reserve** | `GET /api/payment-config` must return `configured: true`. Set `RAZORPAY_KEY_ID` + `RAZORPAY_KEY_SECRET` in `backend/.env` and restart the API. |
 | `razorpayConfigured: false` on `/api/health` | Same as above — both Razorpay env vars must be set on the **backend** service. |
-| Payment fails with database message | MongoDB must be running (`mongodb://127.0.0.1:27017/...`) or use a [MongoDB Atlas](https://www.mongodb.com/atlas) URI in `MONGODB_URI`. |
+| Payment fails with database message | Set `MONGODB_URI` in `backend/.env`. On **Windows + Node 22**, use Atlas **Standard** URI (`mongodb://...`) not `mongodb+srv://` if you see `querySrv ECONNREFUSED`. Restart backend until you see `MongoDB connected`. |
 | Checkout modal does not open | Restart frontend after creating `frontend/.env` with `VITE_RAZORPAY_KEY_ID`. |
 
 ---

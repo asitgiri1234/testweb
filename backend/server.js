@@ -2,6 +2,7 @@
  * Backend entry — exports Express for Vercel; listens locally when not on Vercel.
  */
 import "dotenv/config";
+import "./src/config/dns.js";
 import app from "./src/app.js";
 import connectDB from "./src/config/db.js";
 
@@ -33,9 +34,19 @@ function startServer() {
 
 if (!process.env.VERCEL) {
   connectDB()
-    .then(() => startServer())
+    .then(() => {
+      console.log("MongoDB ready — bookings and payments enabled.");
+      startServer();
+    })
     .catch((err) => {
-      console.warn(`MongoDB unavailable (${err.message}) — starting API without database.`);
+      console.error(`MongoDB connection failed: ${err.message}`);
+      console.error(
+        "Fix: check MONGODB_URI in backend/.env, Atlas Network Access (0.0.0.0/0), and restart with npm run dev.",
+      );
+      if (process.env.MONGODB_URI?.trim()) {
+        process.exit(1);
+      }
+      console.warn("No MONGODB_URI set — starting API without database.");
       startServer();
     });
 }

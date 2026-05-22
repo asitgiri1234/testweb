@@ -31,7 +31,8 @@ export async function ensureDb() {
       const isConnectionFailure =
         err.name === "MongooseServerSelectionError" ||
         err.message?.includes("ECONNREFUSED") ||
-        err.message?.includes("ENOTFOUND");
+        err.message?.includes("ENOTFOUND") ||
+        err.message?.includes("querySrv");
 
       if (isConnectionFailure) {
         const error = new Error(

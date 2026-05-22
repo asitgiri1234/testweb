@@ -3,6 +3,7 @@
  * Run: node src/scripts/seedProperties.js
  */
 import "dotenv/config";
+import "../config/dns.js";
 import connectDB from "../config/db.js";
 import Property from "../models/Property.js";
 import {

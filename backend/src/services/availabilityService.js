@@ -13,8 +13,9 @@ import { fetchAirbnbBlockedRanges } from "./airbnbImportService.js";
 import {
   eachNightInRange,
   expandRangeToDates,
+  normalizeStayDateInput,
+  parseCalendarDate,
   rangesOverlap,
-  startOfDay,
   toDateString,
 } from "../utils/dateUtils.js";
 
@@ -39,12 +40,29 @@ export async function expireStalePendingBookings(propertyId) {
   if (!dbReady) return 0;
 
   const cutoff = getHoldCutoffDate();
+  const orderHoldCutoff = new Date(
+    Date.now() - 24 * 60 * 60 * 1000,
+  );
+
   const result = await Booking.updateMany(
     {
       property: propertyId,
       paymentStatus: "pending",
       bookingStatus: "pending",
-      createdAt: { $lt: cutoff },
+      $or: [
+        {
+          createdAt: { $lt: cutoff },
+          $or: [
+            { razorpayOrderId: { $exists: false } },
+            { razorpayOrderId: null },
+            { razorpayOrderId: "" },
+          ],
+        },
+        {
+          razorpayOrderId: { $exists: true, $nin: [null, ""] },
+          createdAt: { $lt: orderHoldCutoff },
+        },
+      ],
     },
     {
       $set: {
@@ -84,7 +102,7 @@ export async function getWebsiteBookingRanges(propertyId) {
 
   const holdCutoff = getHoldCutoffDate();
 
-  // Paid bookings always block. Unpaid pending only block during the short payment window.
+  // Paid bookings always block. Pending holds block during checkout or after Razorpay order exists.
   const bookings = await Booking.find({
     property: propertyId,
     bookingStatus: { $ne: "cancelled" },
@@ -93,7 +111,10 @@ export async function getWebsiteBookingRanges(propertyId) {
       {
         paymentStatus: "pending",
         bookingStatus: "pending",
-        createdAt: { $gte: holdCutoff },
+        $or: [
+          { createdAt: { $gte: holdCutoff } },
+          { razorpayOrderId: { $exists: true, $nin: [null, ""] } },
+        ],
       },
     ],
   }).select("checkIn checkOut guestName bookingStatus paymentStatus");
@@ -181,8 +202,8 @@ export async function getAvailabilityByPropertySlug(propertySlug) {
 }
 
 export async function isRangeAvailable(propertySlug, checkIn, checkOut) {
-  const checkInDate = startOfDay(checkIn);
-  const checkOutDate = startOfDay(checkOut);
+  const checkInDate = parseCalendarDate(normalizeStayDateInput(checkIn));
+  const checkOutDate = parseCalendarDate(normalizeStayDateInput(checkOut));
 
   if (Number.isNaN(checkInDate.getTime()) || Number.isNaN(checkOutDate.getTime())) {
     const error = new Error("Invalid check-in or check-out date");

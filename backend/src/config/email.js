@@ -18,8 +18,14 @@ export function getResendClient() {
 }
 
 export const emailConfig = {
+  get hostName() {
+    return process.env.HOST_NAME?.trim() || "Joel Joseph";
+  },
   get hostEmail() {
     return process.env.HOST_EMAIL?.trim() || "joeljoseph2003871@gmail.com";
+  },
+  get hostPhone() {
+    return process.env.HOST_PHONE?.trim() || "7428063807";
   },
   get fromAddress() {
     return (

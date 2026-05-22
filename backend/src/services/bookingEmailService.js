@@ -57,16 +57,28 @@ function buildBookingDetails(booking) {
   };
 }
 
+function buildHostContactBlock() {
+  const { hostName, hostEmail, hostPhone } = emailConfig;
+  return {
+    hostName,
+    hostEmail,
+    hostPhone,
+    hostPhoneDisplay: `+91 ${hostPhone.replace(/^\+?91/, "")}`,
+  };
+}
+
 function buildGuestConfirmationEmail(booking) {
   const { siteName } = emailConfig;
+  const host = buildHostContactBlock();
   const d = buildBookingDetails(booking);
-  const subject = `${siteName} — Booking confirmed at ${d.propertyTitle}`;
+  const subject = `${siteName} — Your stay at ${d.propertyTitle} is confirmed`;
 
   const text = [
-    `Hi ${booking.guestName},`,
+    `Dear ${booking.guestName},`,
     "",
-    `Your payment was received and your stay is confirmed.`,
+    `Thank you for choosing ${siteName}. Your payment has been received and your reservation is confirmed.`,
     "",
+    `Stay details`,
     `Property: ${d.propertyTitle}`,
     `Booking reference: ${d.reference}`,
     `Check-in: ${d.checkIn}`,
@@ -78,32 +90,52 @@ function buildGuestConfirmationEmail(booking) {
       ? `Payment ID: ${booking.razorpayPaymentId}`
       : "",
     "",
-    `We look forward to hosting you.`,
+    `Your host`,
+    `${host.hostName}`,
+    `Email: ${host.hostEmail}`,
+    `Phone: ${host.hostPhoneDisplay}`,
     "",
+    `If you have any questions before your arrival, please reach out directly — we are happy to help with directions, check-in, or special requests.`,
+    "",
+    `We look forward to welcoming you.`,
+    "",
+    `Warm regards,`,
+    `${host.hostName}`,
     siteName,
   ]
     .filter(Boolean)
     .join("\n");
 
   const html = `
-    <div style="font-family: system-ui, sans-serif; max-width: 560px; color: #222;">
-      <h2 style="margin: 0 0 8px;">Booking confirmed</h2>
-      <p style="margin: 0 0 20px; color: #444;">Hi ${escapeHtml(booking.guestName)}, your payment was received. Your stay at <strong>${escapeHtml(d.propertyTitle)}</strong> is confirmed.</p>
-      <table style="border-collapse: collapse; width: 100%; margin-bottom: 20px;">
-        <tr><td style="padding: 6px 12px 6px 0; color: #717171;">Reference</td><td><strong>${escapeHtml(d.reference)}</strong></td></tr>
-        <tr><td style="padding: 6px 12px 6px 0; color: #717171;">Check-in</td><td>${escapeHtml(d.checkIn)}</td></tr>
-        <tr><td style="padding: 6px 12px 6px 0; color: #717171;">Check-out</td><td>${escapeHtml(d.checkOut)}</td></tr>
-        <tr><td style="padding: 6px 12px 6px 0; color: #717171;">Nights</td><td>${d.nights}</td></tr>
-        <tr><td style="padding: 6px 12px 6px 0; color: #717171;">Guests</td><td>${d.guests}</td></tr>
-        <tr><td style="padding: 6px 12px 6px 0; color: #717171;">Total paid</td><td><strong>${escapeHtml(d.total)}</strong></td></tr>
+    <div style="font-family: Georgia, 'Times New Roman', serif; max-width: 560px; color: #1c1917; line-height: 1.6;">
+      <p style="font-family: system-ui, sans-serif; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: #78716c; margin: 0 0 12px;">Booking confirmed</p>
+      <h2 style="margin: 0 0 16px; font-weight: 500;">Thank you for your reservation</h2>
+      <p style="margin: 0 0 20px; font-family: system-ui, sans-serif; color: #44403c;">Dear ${escapeHtml(booking.guestName)},</p>
+      <p style="margin: 0 0 20px; font-family: system-ui, sans-serif; color: #44403c;">Thank you for choosing <strong>${escapeHtml(siteName)}</strong>. Your payment has been received and your stay at <strong>${escapeHtml(d.propertyTitle)}</strong> is confirmed.</p>
+      <table style="border-collapse: collapse; width: 100%; margin-bottom: 24px; font-family: system-ui, sans-serif; font-size: 14px;">
+        <tr><td style="padding: 8px 12px 8px 0; color: #78716c;">Reference</td><td><strong>${escapeHtml(d.reference)}</strong></td></tr>
+        <tr><td style="padding: 8px 12px 8px 0; color: #78716c;">Check-in</td><td>${escapeHtml(d.checkIn)}</td></tr>
+        <tr><td style="padding: 8px 12px 8px 0; color: #78716c;">Check-out</td><td>${escapeHtml(d.checkOut)}</td></tr>
+        <tr><td style="padding: 8px 12px 8px 0; color: #78716c;">Nights</td><td>${d.nights}</td></tr>
+        <tr><td style="padding: 8px 12px 8px 0; color: #78716c;">Guests</td><td>${d.guests}</td></tr>
+        <tr><td style="padding: 8px 12px 8px 0; color: #78716c;">Total paid</td><td><strong>${escapeHtml(d.total)}</strong></td></tr>
         ${
           booking.razorpayPaymentId
-            ? `<tr><td style="padding: 6px 12px 6px 0; color: #717171;">Payment ID</td><td style="font-size: 13px;">${escapeHtml(booking.razorpayPaymentId)}</td></tr>`
+            ? `<tr><td style="padding: 8px 12px 8px 0; color: #78716c;">Payment ID</td><td style="font-size: 13px;">${escapeHtml(booking.razorpayPaymentId)}</td></tr>`
             : ""
         }
       </table>
-      <p style="margin: 0; color: #444;">We look forward to hosting you.</p>
-      <p style="margin-top: 24px; font-size: 12px; color: #717171;">${escapeHtml(siteName)}</p>
+      <div style="margin-bottom: 24px; padding: 20px; background: #f5f4f2; border-radius: 12px; border: 1px solid rgba(28,25,23,0.08);">
+        <p style="margin: 0 0 8px; font-family: system-ui, sans-serif; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: #78716c;">Your host</p>
+        <p style="margin: 0 0 4px; font-size: 18px; font-weight: 500;">${escapeHtml(host.hostName)}</p>
+        <p style="margin: 0; font-family: system-ui, sans-serif; font-size: 14px; color: #44403c;">
+          <a href="mailto:${escapeHtml(host.hostEmail)}" style="color: #1c1917;">${escapeHtml(host.hostEmail)}</a><br />
+          <a href="tel:+91${escapeHtml(host.hostPhone.replace(/^\+?91/, ""))}" style="color: #1c1917;">${escapeHtml(host.hostPhoneDisplay)}</a>
+        </p>
+      </div>
+      <p style="margin: 0 0 8px; font-family: system-ui, sans-serif; color: #44403c;">If you have any questions before your arrival, please reach out directly — we are happy to help with directions, check-in, or special requests.</p>
+      <p style="margin: 16px 0 0; font-family: system-ui, sans-serif; color: #44403c;">We look forward to welcoming you.</p>
+      <p style="margin-top: 24px; font-family: system-ui, sans-serif; font-size: 13px; color: #78716c;">Warm regards,<br /><strong>${escapeHtml(host.hostName)}</strong><br />${escapeHtml(siteName)}</p>
     </div>
   `;
 
@@ -193,6 +225,7 @@ export async function sendBookingConfirmationEmails(booking) {
       resend.emails.send({
         from: emailConfig.fromAddress,
         to: [booking.guestEmail],
+        replyTo: emailConfig.hostEmail,
         subject: guestMail.subject,
         text: guestMail.text,
         html: guestMail.html,

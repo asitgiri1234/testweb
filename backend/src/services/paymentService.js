@@ -123,6 +123,57 @@ export async function createPaymentOrder(payload) {
   };
 }
 
+async function clearCalendarCacheForBooking(booking) {
+  const property = booking.property;
+  const propertySlug =
+    typeof property === "object" && property?.slug
+      ? property.slug
+      : (await Property.findById(booking.property))?.slug;
+
+  const calendarSlug = propertySlug
+    ? getCalendarSlugForPropertySlug(propertySlug)
+    : null;
+  if (calendarSlug) {
+    clearAirbnbCache(calendarSlug);
+  }
+}
+
+/**
+ * Marks a booking paid + confirmed and locks calendar dates immediately.
+ */
+export async function confirmBookingPaid(booking, paymentDetails = {}) {
+  const {
+    razorpay_order_id,
+    razorpay_payment_id,
+    razorpay_signature,
+  } = paymentDetails;
+
+  if (booking.paymentStatus === "paid") {
+    return booking;
+  }
+
+  if (razorpay_order_id) {
+    booking.razorpayOrderId = razorpay_order_id;
+  }
+  if (razorpay_payment_id) {
+    booking.razorpayPaymentId = razorpay_payment_id;
+  }
+  if (razorpay_signature) {
+    booking.razorpaySignature = razorpay_signature;
+  }
+
+  booking.paymentStatus = "paid";
+  booking.bookingStatus = "confirmed";
+  await booking.save();
+  await clearCalendarCacheForBooking(booking);
+
+  sendBookingConfirmationEmails(booking).catch((err) => {
+    console.error("[booking-email] Failed after payment confirm:", err);
+  });
+
+  return booking;
+}
+
 export async function verifyAndConfirmPayment(payload) {
   const {
     razorpay_order_id,
@@ -174,33 +225,58 @@ export async function verifyAndConfirmPayment(payload) {
     throw error;
   }
 
+  return confirmBookingPaid(booking, {
+    razorpay_order_id,
+    razorpay_payment_id,
+    razorpay_signature,
+  });
+}
+
+export function verifyWebhookSignature(rawBody, signature) {
+  const secret = process.env.RAZORPAY_WEBHOOK_SECRET?.trim();
+  if (!secret || !signature) return false;
+
+  const expected = crypto
+    .createHmac("sha256", secret)
+    .update(rawBody)
+    .digest("hex");
+
+  return expected === signature;
+}
+
+/** Razorpay webhook backup — confirms booking if client verify fails after payment. */
+export async function handleRazorpayWebhookEvent(event) {
+  const eventName = event?.event;
+  if (eventName !== "payment.captured" && eventName !== "order.paid") {
+    return { handled: false, reason: "ignored_event" };
+  }
+
+  const paymentEntity =
+    event?.payload?.payment?.entity || event?.payload?.payment;
+  const orderId = paymentEntity?.order_id;
+  const paymentId = paymentEntity?.id;
+
+  if (!orderId || !paymentId) {
+    return { handled: false, reason: "missing_payment_data" };
+  }
+
+  const booking = await Booking.findOne({ razorpayOrderId: orderId }).populate(
+    "property",
+    "title slug",
+  );
+
+  if (!booking) {
+    return { handled: false, reason: "booking_not_found" };
+  }
+
   if (booking.paymentStatus === "paid") {
-    return booking;
+    return { handled: true, bookingId: booking._id.toString(), alreadyPaid: true };
   }
 
-  booking.razorpayOrderId = razorpay_order_id;
-  booking.razorpayPaymentId = razorpay_payment_id;
-  booking.razorpaySignature = razorpay_signature;
-  booking.paymentStatus = "paid";
-  booking.bookingStatus = "confirmed";
-  await booking.save();
-
-  const property = booking.property;
-  const propertySlug =
-    typeof property === "object" && property?.slug
-      ? property.slug
-      : (await Property.findById(booking.property))?.slug;
-
-  const calendarSlug = propertySlug
-    ? getCalendarSlugForPropertySlug(propertySlug)
-    : null;
-  if (calendarSlug) {
-    clearAirbnbCache(calendarSlug);
-  }
-
-  sendBookingConfirmationEmails(booking).catch((err) => {
-    console.error("[booking-email] Failed after payment confirm:", err);
+  await confirmBookingPaid(booking, {
+    razorpay_order_id: orderId,
+    razorpay_payment_id: paymentId,
   });
 
-  return booking;
+  return { handled: true, bookingId: booking._id.toString() };
 }

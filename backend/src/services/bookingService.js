@@ -9,6 +9,11 @@ import {
   expireStalePendingBookings,
   isRangeAvailable,
 } from "./availabilityService.js";
+import {
+  eachNightInRange,
+  normalizeStayDateInput,
+  parseCalendarDate,
+} from "../utils/dateUtils.js";
 import { clearAirbnbCache } from "./airbnbImportService.js";
 import { getCalendarSlugForPropertySlug } from "../config/calendarConfig.js";
 
@@ -97,11 +102,11 @@ export async function createBooking(payload) {
     throw error;
   }
 
-  const checkInDate = new Date(checkIn);
-  const checkOutDate = new Date(checkOut);
-  const nights = Math.round(
-    (checkOutDate - checkInDate) / (1000 * 60 * 60 * 24),
-  );
+  const checkInLabel = normalizeStayDateInput(checkIn);
+  const checkOutLabel = normalizeStayDateInput(checkOut);
+  const checkInDate = parseCalendarDate(checkInLabel);
+  const checkOutDate = parseCalendarDate(checkOutLabel);
+  const nights = eachNightInRange(checkInDate, checkOutDate).length;
 
   const pricing = calculatePricing(property, nights);
 

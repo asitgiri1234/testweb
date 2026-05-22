@@ -213,12 +213,21 @@ function BookingWidget({
               });
               resolve(verified);
             } catch (err) {
-              reject(err);
+              reject(
+                Object.assign(err, {
+                  code: err.code || "PAYMENT_VERIFY_FAILED",
+                }),
+              );
             }
           },
           onDismiss: () => {
             releaseHold(booking.id);
-            reject(new Error("Payment cancelled. Those dates are available again."));
+            reject(
+              Object.assign(
+                new Error("Payment cancelled. Those dates are available again."),
+                { code: "PAYMENT_CANCELLED" },
+              ),
+            );
           },
         });
       } catch (err) {
@@ -234,7 +243,7 @@ function BookingWidget({
           response.error?.description ||
           response.error?.reason ||
           "Payment failed. Please try again.";
-        reject(new Error(description));
+        reject(Object.assign(new Error(description), { code: "PAYMENT_FAILED" }));
       });
 
       rzp.open();
@@ -267,8 +276,8 @@ function BookingWidget({
         guestName: guestName.trim(),
         guestEmail: guestEmail.trim(),
         guestPhone: guestPhone.trim(),
-        checkIn: checkIn.toISOString(),
-        checkOut: checkOut.toISOString(),
+        checkIn: toLocalDateString(checkIn),
+        checkOut: toLocalDateString(checkOut),
         guests,
       });
 
@@ -300,8 +309,16 @@ function BookingWidget({
         setBookingSuccess(verified.booking || booking);
         await refreshAvailability();
       } catch (payErr) {
-        if (booking?.id) {
+        const releaseAfterPayment =
+          payErr?.code === "PAYMENT_CANCELLED" || payErr?.code === "PAYMENT_FAILED";
+        if (booking?.id && releaseAfterPayment) {
           await releaseHold(booking.id);
+        }
+        if (payErr?.code === "PAYMENT_VERIFY_FAILED") {
+          setBookingError(
+            "Payment was received but confirmation is still processing. Your dates remain reserved — please refresh in a moment or contact Joel at joeljoseph2003871@gmail.com / +91 7428063807.",
+          );
+          return;
         }
         throw payErr;
       }
@@ -458,6 +475,9 @@ function BookingWidget({
                   </span>
                 </>
               )}
+              <br />
+              A confirmation email with your host&apos;s contact details (Joel Joseph) has
+              been sent to {guestEmail.trim()}.
             </>
           )}
         </p>

@@ -48,6 +48,25 @@ function isOriginAllowed(origin) {
   return false;
 }
 
+const webhookPath = IS_VERCEL ? "/razorpay/webhook" : "/api/razorpay/webhook";
+
+app.post(
+  webhookPath,
+  express.raw({ type: "application/json" }),
+  async (req, res, next) => {
+    try {
+      const { razorpayWebhook } = await import(
+        "./controllers/paymentController.js"
+      );
+      const { ensureDb } = await import("./middleware/ensureDb.js");
+      await ensureDb();
+      return razorpayWebhook(req, res, next);
+    } catch (err) {
+      return next(err);
+    }
+  },
+);
+
 app.use(express.json({ limit: "32kb" }));
 
 app.use(

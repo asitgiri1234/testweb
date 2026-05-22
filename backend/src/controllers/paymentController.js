@@ -4,6 +4,36 @@
 import * as paymentService from "../services/paymentService.js";
 import { getCheckoutSettingsForWebsite } from "../services/razorpayCheckoutService.js";
 
+export const razorpayWebhook = async (req, res) => {
+  try {
+    const signature = req.headers["x-razorpay-signature"];
+    const rawBody =
+      typeof req.body === "string"
+        ? req.body
+        : Buffer.isBuffer(req.body)
+          ? req.body.toString("utf8")
+          : JSON.stringify(req.body);
+
+    if (!paymentService.verifyWebhookSignature(rawBody, signature)) {
+      return res.status(400).json({ success: false, message: "Invalid webhook signature" });
+    }
+
+    const event =
+      typeof req.body === "object" && !Buffer.isBuffer(req.body)
+        ? req.body
+        : JSON.parse(rawBody);
+
+    const result = await paymentService.handleRazorpayWebhookEvent(event);
+    return res.json({ success: true, ...result });
+  } catch (err) {
+    console.error("[razorpay-webhook]", err);
+    return res.status(500).json({
+      success: false,
+      message: err.message || "Webhook processing failed",
+    });
+  }
+};
+
 export const createOrder = async (req, res, next) => {
   try {
     const result = await paymentService.createPaymentOrder(req.body);

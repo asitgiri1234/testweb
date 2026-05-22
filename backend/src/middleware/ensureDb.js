@@ -35,8 +35,12 @@ export async function ensureDb() {
         err.message?.includes("querySrv");
 
       if (isConnectionFailure) {
+        const uri = process.env.MONGODB_URI?.trim() || "";
+        const hint = uri.startsWith("mongodb+srv://")
+          ? " On Vercel, use the Atlas STANDARD connection string (mongodb://...shard hosts...) with /vacation_rentals and your real password — not mongodb+srv."
+          : " Check Atlas Network Access (0.0.0.0/0) and that MONGODB_URI is on the backend service in Vercel.";
         const error = new Error(
-          "Database is unreachable. Start MongoDB locally or set a valid MONGODB_URI (e.g. MongoDB Atlas).",
+          `Database is unreachable.${hint}`,
         );
         error.statusCode = 503;
         error.code = "DB_UNAVAILABLE";

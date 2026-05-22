@@ -24,7 +24,7 @@ Add these to the **backend** service (Production + Preview):
 
 | Variable | Example / notes |
 |----------|-----------------|
-| `MONGODB_URI` | Atlas **Standard** URI (not `mongodb+srv` if you had DNS issues on Windows). Include database name: `/vacation_rentals` |
+| `MONGODB_URI` | Atlas **Standard** URI (`mongodb://...shard-00-00.../vacation_rentals?ssl=true...`) — **not** `mongodb+srv` and **not** `<db_password>` placeholder. Must be on **backend** service. |
 | `RAZORPAY_KEY_ID` | `rzp_test_...` (test) or `rzp_live_...` (production) |
 | `RAZORPAY_KEY_SECRET` | Secret from Razorpay Dashboard → API Keys |
 | `RESEND_API_KEY` | `re_...` from [resend.com/api-keys](https://resend.com/api-keys) |

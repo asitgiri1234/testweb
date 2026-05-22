@@ -9,6 +9,8 @@ import express from "express";
 import cors from "cors";
 import apiRoutes from "./routes/index.js";
 import { notFound, errorHandler } from "./middleware/errorHandler.js";
+import { validateMongoUri } from "./config/db.js";
+import { isDbConfigured, tryEnsureDb } from "./middleware/ensureDb.js";
 
 const app = express();
 const IS_VERCEL = Boolean(process.env.VERCEL);
@@ -64,7 +66,21 @@ app.use(
   })
 );
 
-function healthHandler(req, res) {
+async function healthHandler(req, res) {
+  const uriCheck = validateMongoUri();
+  let databaseConnected = false;
+  let databaseError = null;
+
+  if (uriCheck.ok && isDbConfigured()) {
+    databaseConnected = await tryEnsureDb();
+    if (!databaseConnected) {
+      databaseError =
+        "Could not connect — use Standard mongodb:// URI with /vacation_rentals on Vercel backend env.";
+    }
+  } else {
+    databaseError = uriCheck.message || "MONGODB_URI not set on backend service.";
+  }
+
   res.json({
     status: "ok",
     message: "Vacation rental API is running",
@@ -73,6 +89,9 @@ function healthHandler(req, res) {
       process.env.RAZORPAY_KEY_ID?.trim() &&
         process.env.RAZORPAY_KEY_SECRET?.trim(),
     ),
+    databaseConfigured: isDbConfigured() && uriCheck.ok,
+    databaseConnected,
+    databaseError,
     calendars: {
       amberHouseExport: "/api/calendar/property-1.ics",
       rooftopSerenityExport: "/api/calendar/property-2.ics",

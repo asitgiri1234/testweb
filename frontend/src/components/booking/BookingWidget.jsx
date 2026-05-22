@@ -180,6 +180,12 @@ function BookingWidget({
           contact: guestPhone.trim() || undefined,
         },
         theme: { color: "#1c1917" },
+        config: {
+          display: {
+            hide: [{ method: "emi" }],
+            preferences: { show_default_blocks: true },
+          },
+        },
         handler: async (response) => {
           try {
             const verified = await verifyPayment({

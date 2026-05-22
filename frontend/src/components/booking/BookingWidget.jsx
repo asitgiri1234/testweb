@@ -13,6 +13,10 @@ import {
   verifyPayment,
 } from "../../api/payments.js";
 import { siteConfig } from "../../config/siteConfig.js";
+import {
+  razorpayCheckoutConfig,
+  razorpayCheckoutMethods,
+} from "../../config/razorpayCheckout.js";
 import { toLocalDateString } from "../../utils/dateStrings.js";
 import { loadRazorpayCheckout } from "../../utils/loadRazorpay.js";
 import "./BookingWidget.css";
@@ -180,12 +184,11 @@ function BookingWidget({
           contact: guestPhone.trim() || undefined,
         },
         theme: { color: "#1c1917" },
-        config: {
-          display: {
-            hide: [{ method: "emi" }],
-            preferences: { show_default_blocks: true },
-          },
-        },
+        method: razorpayCheckoutMethods,
+        config: razorpayCheckoutConfig,
+        ...(order.checkout_config_id
+          ? { checkout_config_id: order.checkout_config_id }
+          : {}),
         handler: async (response) => {
           try {
             const verified = await verifyPayment({

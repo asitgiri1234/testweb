@@ -79,13 +79,20 @@ export async function createPaymentOrder(payload) {
 
   const razorpay = getRazorpayClient();
 
+  const orderPayload = {
+    amount: amountPaise,
+    currency: currency.toUpperCase(),
+    receipt: String(receiptId).slice(0, 40),
+  };
+
+  const checkoutConfigId = process.env.RAZORPAY_CHECKOUT_CONFIG_ID?.trim();
+  if (checkoutConfigId) {
+    orderPayload.checkout_config_id = checkoutConfigId;
+  }
+
   let order;
   try {
-    order = await razorpay.orders.create({
-      amount: amountPaise,
-      currency: currency.toUpperCase(),
-      receipt: String(receiptId).slice(0, 40),
-    });
+    order = await razorpay.orders.create(orderPayload);
   } catch (err) {
     const statusCode = err.statusCode === 401 ? 401 : 500;
     const error = new Error(
@@ -106,6 +113,7 @@ export async function createPaymentOrder(payload) {
     currency: order.currency,
     key_id: getRazorpayKeyId(),
     booking_id: booking?._id?.toString(),
+    checkout_config_id: checkoutConfigId || undefined,
   };
 }
 

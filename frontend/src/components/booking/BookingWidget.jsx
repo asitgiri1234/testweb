@@ -170,6 +170,8 @@ function BookingWidget({
       );
     }
 
+    const checkoutConfigId = order.checkout_config_id?.trim();
+
     return new Promise((resolve, reject) => {
       const options = {
         key,
@@ -184,11 +186,13 @@ function BookingWidget({
           contact: guestPhone.trim() || undefined,
         },
         theme: { color: "#1c1917" },
-        method: razorpayCheckoutMethods,
-        config: razorpayCheckoutConfig,
-        ...(order.checkout_config_id
-          ? { checkout_config_id: order.checkout_config_id }
-          : {}),
+        // Dashboard Payment Configuration: use ONLY checkout_config_id (no runtime config — avoids "no payment config" error)
+        ...(checkoutConfigId
+          ? { checkout_config_id: checkoutConfigId }
+          : {
+              method: razorpayCheckoutMethods,
+              config: razorpayCheckoutConfig,
+            }),
         handler: async (response) => {
           try {
             const verified = await verifyPayment({

@@ -15,6 +15,11 @@ export function isRazorpayConfigured() {
   return Boolean(getRazorpayKeyId() && getRazorpayKeySecret());
 }
 
+/** Dashboard → Settings → Checkout → Payment Configuration → Config ID */
+export function getCheckoutConfigId() {
+  return process.env.RAZORPAY_CHECKOUT_CONFIG_ID?.trim() || "";
+}
+
 let razorpayInstance = null;
 
 export function getRazorpayClient() {

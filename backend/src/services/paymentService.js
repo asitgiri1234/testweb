@@ -6,6 +6,7 @@ import Booking from "../models/Booking.js";
 import {
   getRazorpayClient,
   getRazorpayKeyId,
+  getCheckoutConfigId,
   isRazorpayConfigured,
 } from "../config/razorpay.js";
 import { clearAirbnbCache } from "./airbnbImportService.js";
@@ -85,7 +86,7 @@ export async function createPaymentOrder(payload) {
     receipt: String(receiptId).slice(0, 40),
   };
 
-  const checkoutConfigId = process.env.RAZORPAY_CHECKOUT_CONFIG_ID?.trim();
+  const checkoutConfigId = getCheckoutConfigId();
   if (checkoutConfigId) {
     orderPayload.checkout_config_id = checkoutConfigId;
   }

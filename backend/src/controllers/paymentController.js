@@ -2,7 +2,11 @@
  * Razorpay payment endpoints — create order and verify payment.
  */
 import * as paymentService from "../services/paymentService.js";
-import { isRazorpayConfigured } from "../config/razorpay.js";
+import {
+  getCheckoutConfigId,
+  getRazorpayKeyId,
+  isRazorpayConfigured,
+} from "../config/razorpay.js";
 
 export const createOrder = async (req, res, next) => {
   try {
@@ -47,11 +51,13 @@ export const verifyPayment = async (req, res, next) => {
 };
 
 export const getPaymentConfig = (req, res) => {
+  const checkoutConfigId = getCheckoutConfigId();
+
   return res.json({
     success: true,
     configured: isRazorpayConfigured(),
-    key_id: isRazorpayConfigured()
-      ? process.env.RAZORPAY_KEY_ID?.trim()
-      : null,
+    key_id: isRazorpayConfigured() ? getRazorpayKeyId() : null,
+    checkout_config_id: checkoutConfigId || null,
+    uses_dashboard_payment_config: Boolean(checkoutConfigId),
   });
 };

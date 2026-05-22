@@ -266,9 +266,16 @@ function BookingWidget({
       const refreshed = await fetchPropertyAvailability(property.slug);
       setBlockedDates(refreshed.blockedDates || []);
     } catch (err) {
-      if (err.code === "DB_NOT_CONFIGURED") {
+      if (
+        err.code === "DB_NOT_CONFIGURED" ||
+        err.code === "DB_UNAVAILABLE"
+      ) {
         setBookingError(
-          "Booking service is temporarily unavailable. Please use the contact form and we will confirm your stay manually.",
+          "Booking database is not available. Start MongoDB locally (or set MONGODB_URI on the server), then try Pay & reserve again.",
+        );
+      } else if (err.status === 503 && err.message?.includes("not configured")) {
+        setBookingError(
+          "Payment gateway is not configured on the server. Add RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET to backend/.env (or Vercel env).",
         );
       } else {
         setBookingError(err.message);

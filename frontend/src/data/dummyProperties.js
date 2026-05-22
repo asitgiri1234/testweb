@@ -55,7 +55,7 @@ export const dummyProperties = [
     pricePerNight: 2299,
     rating: 5,
     reviewCount: 137,
-    cleaningFee: 600,
+    cleaningFee: 0,
     rules: ["No smoking", "No parties", "Quiet hours from 11pm"],
   },
   {
@@ -96,7 +96,7 @@ export const dummyProperties = [
     pricePerNight: 1999,
     rating: 5,
     reviewCount: 149,
-    cleaningFee: 800,
+    cleaningFee: 0,
     rules: [
       "Quiet hours: 11pm–7am",
       "No lift in building — 4th floor walk-up",

@@ -18,6 +18,16 @@ function startServer() {
     } else {
       console.warn("WARNING: RESEND_API_KEY is not set — contact form emails will not send.");
     }
+    if (
+      process.env.RAZORPAY_KEY_ID?.trim() &&
+      process.env.RAZORPAY_KEY_SECRET?.trim()
+    ) {
+      console.log("Razorpay: configured");
+    } else {
+      console.warn(
+        "WARNING: RAZORPAY_KEY_ID / RAZORPAY_KEY_SECRET not set — online payments disabled.",
+      );
+    }
   });
 }
 

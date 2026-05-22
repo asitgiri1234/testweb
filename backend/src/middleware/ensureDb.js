@@ -27,6 +27,21 @@ export async function ensureDb() {
   if (!connectionPromise) {
     connectionPromise = connectDB().catch((err) => {
       connectionPromise = null;
+
+      const isConnectionFailure =
+        err.name === "MongooseServerSelectionError" ||
+        err.message?.includes("ECONNREFUSED") ||
+        err.message?.includes("ENOTFOUND");
+
+      if (isConnectionFailure) {
+        const error = new Error(
+          "Database is unreachable. Start MongoDB locally or set a valid MONGODB_URI (e.g. MongoDB Atlas).",
+        );
+        error.statusCode = 503;
+        error.code = "DB_UNAVAILABLE";
+        throw error;
+      }
+
       throw err;
     });
   }

@@ -8,6 +8,7 @@ async function parseJsonResponse(response) {
   if (!response.ok) {
     const error = new Error(data.message || "Payment request failed");
     error.status = response.status;
+    error.code = data.code;
     throw error;
   }
   return data;

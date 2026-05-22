@@ -146,6 +146,15 @@ npm run dev
 
 **Test card (Razorpay test mode):** `4111 1111 1111 1111` · any future expiry · any CVV
 
+**Troubleshooting**
+
+| Symptom | Fix |
+|---------|-----|
+| Button says **Request reservation** instead of **Pay & reserve** | `GET /api/payment-config` must return `configured: true`. Set `RAZORPAY_KEY_ID` + `RAZORPAY_KEY_SECRET` in `backend/.env` and restart the API. |
+| `razorpayConfigured: false` on `/api/health` | Same as above — both Razorpay env vars must be set on the **backend** service. |
+| Payment fails with database message | MongoDB must be running (`mongodb://127.0.0.1:27017/...`) or use a [MongoDB Atlas](https://www.mongodb.com/atlas) URI in `MONGODB_URI`. |
+| Checkout modal does not open | Restart frontend after creating `frontend/.env` with `VITE_RAZORPAY_KEY_ID`. |
+
 ---
 
 ## Deploy to Vercel
@@ -160,8 +169,11 @@ This repo uses Vercel **Services** ([`vercel.json`](vercel.json)):
 1. Import [github.com/asitgiri1234/testweb](https://github.com/asitgiri1234/testweb) at [vercel.com/new](https://vercel.com/new).
 2. Root directory: **`.`** (repository root).
 3. Framework: **Other** / **Services** (not Vite-only).
-4. Add all environment variables from the tables above in **Project → Settings → Environment Variables**.
-5. Redeploy after changing env vars.
+4. Add all environment variables from the tables above in **Project → Settings → Environment Variables** (set each on the correct service: **backend** vs **frontend**).
+5. **Required on backend service** for Pay & reserve: `MONGODB_URI`, `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`.
+6. **Required on frontend service**: `VITE_RAZORPAY_KEY_ID` (same value as `RAZORPAY_KEY_ID`).
+7. In MongoDB Atlas → **Network Access**, allow your deployment (e.g. `0.0.0.0/0` for serverless).
+8. Redeploy after changing env vars.
 
 **Required for calendar + Pay & reserve on the live site:**
 

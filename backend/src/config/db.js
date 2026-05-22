@@ -11,7 +11,9 @@ const connectDB = async () => {
     throw new Error("MONGODB_URI is missing in .env");
   }
 
-  await mongoose.connect(uri, { serverSelectionTimeoutMS: 3000 });
+  await mongoose.connect(uri, {
+    serverSelectionTimeoutMS: 15000,
+  });
   console.log("MongoDB connected");
 };
 

@@ -16,6 +16,7 @@ export async function createBooking(payload) {
     const error = new Error(data.message || "Unable to create booking");
     error.status = response.status;
     error.code = data.code || data.error;
+    error.status = response.status;
     error.conflict = data.conflict;
     throw error;
   }

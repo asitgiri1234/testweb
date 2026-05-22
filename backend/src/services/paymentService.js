@@ -11,6 +11,7 @@ import {
 import { clearAirbnbCache } from "./airbnbImportService.js";
 import { getCalendarSlugForPropertySlug } from "../config/calendarConfig.js";
 import Property from "../models/Property.js";
+import { sendBookingConfirmationEmails } from "./bookingEmailService.js";
 
 const MIN_AMOUNT_PAISE = 100;
 
@@ -182,6 +183,10 @@ export async function verifyAndConfirmPayment(payload) {
   if (calendarSlug) {
     clearAirbnbCache(calendarSlug);
   }
+
+  sendBookingConfirmationEmails(booking).catch((err) => {
+    console.error("[booking-email] Failed after payment confirm:", err);
+  });
 
   return booking;
 }

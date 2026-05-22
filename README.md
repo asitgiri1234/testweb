@@ -143,6 +143,7 @@ npm run dev
 3. Razorpay checkout modal opens.
 4. On success → frontend sends `razorpay_order_id`, `razorpay_payment_id`, `razorpay_signature` to `/api/verify-payment`.
 5. Backend verifies HMAC-SHA256 signature → marks booking **paid** and **confirmed**.
+6. **Emails** (if `RESEND_API_KEY` is set) — confirmation to the guest and notification to the host.
 
 **Test payments (Razorpay test mode, India account):**
 - **Card (domestic):** `5267 3181 8797 5449` · any future expiry · any CVV → then click **Success** on the mock bank page
@@ -161,6 +162,8 @@ npm run dev
 ---
 
 ## Deploy to Vercel
+
+**Step-by-step:** see **[VERCEL_SETUP.md](VERCEL_SETUP.md)** (Razorpay, MongoDB, Resend emails).
 
 This repo uses Vercel **Services** ([`vercel.json`](vercel.json)):
 

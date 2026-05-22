@@ -144,7 +144,10 @@ npm run dev
 4. On success → frontend sends `razorpay_order_id`, `razorpay_payment_id`, `razorpay_signature` to `/api/verify-payment`.
 5. Backend verifies HMAC-SHA256 signature → marks booking **paid** and **confirmed**.
 
-**Test card (Razorpay test mode):** `4111 1111 1111 1111` · any future expiry · any CVV
+**Test payments (Razorpay test mode, India account):**
+- **Card (domestic):** `5267 3181 8797 5449` · any future expiry · any CVV → then click **Success** on the mock bank page
+- **UPI:** enter `success@razorpay` as the UPI ID (test mode)
+- Do **not** use `4111 1111 1111 1111` on Indian accounts — Razorpay treats it as an international card unless international payments are enabled in the Dashboard
 
 **Troubleshooting**
 

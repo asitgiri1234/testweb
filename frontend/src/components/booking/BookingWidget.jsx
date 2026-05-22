@@ -13,15 +13,10 @@ import {
   verifyPayment,
 } from "../../api/payments.js";
 import { siteConfig } from "../../config/siteConfig.js";
-import {
-  razorpayCheckoutConfig,
-  razorpayCheckoutMethods,
-} from "../../config/razorpayCheckout.js";
 import { toLocalDateString } from "../../utils/dateStrings.js";
+import { buildRazorpayCheckoutOptions } from "../../utils/buildRazorpayOptions.js";
 import { loadRazorpayCheckout } from "../../utils/loadRazorpay.js";
 import "./BookingWidget.css";
-
-const RAZORPAY_KEY_ID = import.meta.env.VITE_RAZORPAY_KEY_ID;
 
 function BookingWidget({
   property,
@@ -42,6 +37,7 @@ function BookingWidget({
   const [calendarWarning, setCalendarWarning] = useState("");
   const [hasAirbnbSync, setHasAirbnbSync] = useState(false);
   const [paymentConfigured, setPaymentConfigured] = useState(null);
+  const [serverPaymentConfig, setServerPaymentConfig] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [bookingError, setBookingError] = useState("");
   const [bookingSuccess, setBookingSuccess] = useState(null);
@@ -57,10 +53,16 @@ function BookingWidget({
       try {
         const config = await fetchPaymentConfig();
         if (!cancelled) {
-          setPaymentConfigured(Boolean(config.configured && config.key_id));
+          setServerPaymentConfig(config);
+          setPaymentConfigured(
+            Boolean(config.configured && config.key_id && config.checkout_ready),
+          );
         }
       } catch {
-        if (!cancelled) setPaymentConfigured(false);
+        if (!cancelled) {
+          setPaymentConfigured(false);
+          setServerPaymentConfig(null);
+        }
       }
     }
 
@@ -162,60 +164,52 @@ function BookingWidget({
 
   const openRazorpayCheckout = async (booking, order) => {
     const Razorpay = await loadRazorpayCheckout();
-    const key = order.key_id || RAZORPAY_KEY_ID;
 
-    if (!key) {
+    if (!serverPaymentConfig?.checkout_ready) {
       throw new Error(
-        "Payment gateway is not configured on the server. Please contact us to complete your booking.",
+        serverPaymentConfig?.message ||
+          "Payment configuration is not ready. Check Razorpay keys and dashboard config on the server.",
       );
     }
 
-    const checkoutConfigId = order.checkout_config_id?.trim();
-
     return new Promise((resolve, reject) => {
-      const options = {
-        key,
-        amount: order.amount,
-        currency: order.currency,
-        name: siteConfig.name,
-        description: `${property.title} — ${nights} night${nights > 1 ? "s" : ""}`,
-        order_id: order.order_id,
-        prefill: {
-          name: guestName.trim(),
-          email: guestEmail.trim(),
-          contact: guestPhone.trim() || undefined,
-        },
-        theme: { color: "#1c1917" },
-        // Dashboard Payment Configuration: use ONLY checkout_config_id (no runtime config — avoids "no payment config" error)
-        ...(checkoutConfigId
-          ? { checkout_config_id: checkoutConfigId }
-          : {
-              method: razorpayCheckoutMethods,
-              config: razorpayCheckoutConfig,
-            }),
-        handler: async (response) => {
-          try {
-            const verified = await verifyPayment({
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-              bookingId: booking.id,
-            });
-            resolve(verified);
-          } catch (err) {
-            reject(err);
-          }
-        },
-        modal: {
-          ondismiss: () => {
+      let options;
+      try {
+        options = buildRazorpayCheckoutOptions({
+          serverPaymentConfig,
+          order,
+          siteName: siteConfig.name,
+          description: `${property.title} — ${nights} night${nights > 1 ? "s" : ""}`,
+          prefill: {
+            name: guestName.trim(),
+            email: guestEmail.trim(),
+            contact: guestPhone.trim() || undefined,
+          },
+          onSuccess: async (response) => {
+            try {
+              const verified = await verifyPayment({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                bookingId: booking.id,
+              });
+              resolve(verified);
+            } catch (err) {
+              reject(err);
+            }
+          },
+          onDismiss: () => {
             reject(
               new Error(
                 "Payment cancelled. Your dates are held until payment completes.",
               ),
             );
           },
-        },
-      };
+        });
+      } catch (err) {
+        reject(err);
+        return;
+      }
 
       const rzp = new Razorpay(options);
 
@@ -265,6 +259,11 @@ function BookingWidget({
       const booking = result.booking;
 
       if (!paymentConfigured) {
+        const paymentMsg =
+          serverPaymentConfig?.message ||
+          serverPaymentConfig?.hint ||
+          "Online payment is not available right now.";
+        setBookingError(paymentMsg);
         setBookingSuccess({
           ...booking,
           pendingPayment: true,
@@ -273,6 +272,13 @@ function BookingWidget({
       }
 
       const order = await createPaymentOrder({ bookingId: booking.id });
+
+      if (order.checkout_ready === false) {
+        throw new Error(
+          serverPaymentConfig?.message ||
+            "Razorpay checkout configuration is invalid for the current API keys.",
+        );
+      }
       const verified = await openRazorpayCheckout(booking, order);
 
       setBookingSuccess(verified.booking || booking);
@@ -455,10 +461,18 @@ function BookingWidget({
         </button>
       )}
 
-      {paymentConfigured === false && !compact && (
+      {serverPaymentConfig?.payment_methods?.length > 0 && paymentConfigured && (
         <p className="booking-widget__hint booking-widget__hint--payment">
-          Online payment will open here once Razorpay keys are added in Vercel. You can
-          still submit a reservation request above.
+          Pay securely with {serverPaymentConfig.payment_methods.join(", ")} via Razorpay
+          {serverPaymentConfig.checkout_mode === "dashboard" ? " (your live dashboard setup)" : ""}.
+        </p>
+      )}
+
+      {paymentConfigured === false && !compact && (
+        <p className="booking-widget__hint booking-widget__hint--payment booking-widget__warning">
+          {serverPaymentConfig?.message ||
+            serverPaymentConfig?.hint ||
+            "Online payment is not ready. Check Razorpay keys and payment configuration on the server."}
         </p>
       )}
     </aside>

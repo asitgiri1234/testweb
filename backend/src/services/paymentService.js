@@ -13,6 +13,7 @@ import { clearAirbnbCache } from "./airbnbImportService.js";
 import { getCalendarSlugForPropertySlug } from "../config/calendarConfig.js";
 import Property from "../models/Property.js";
 import { sendBookingConfirmationEmails } from "./bookingEmailService.js";
+import { getCheckoutSettingsForWebsite } from "./razorpayCheckoutService.js";
 
 const MIN_AMOUNT_PAISE = 100;
 
@@ -108,6 +109,8 @@ export async function createPaymentOrder(payload) {
     await booking.save();
   }
 
+  const checkoutSettings = await getCheckoutSettingsForWebsite();
+
   return {
     order_id: order.id,
     amount: order.amount,
@@ -115,6 +118,8 @@ export async function createPaymentOrder(payload) {
     key_id: getRazorpayKeyId(),
     booking_id: booking?._id?.toString(),
     checkout_config_id: checkoutConfigId || undefined,
+    checkout_mode: checkoutSettings.checkout_mode,
+    checkout_ready: checkoutSettings.checkout_ready,
   };
 }
 

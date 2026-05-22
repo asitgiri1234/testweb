@@ -2,11 +2,7 @@
  * Razorpay payment endpoints — create order and verify payment.
  */
 import * as paymentService from "../services/paymentService.js";
-import {
-  getCheckoutConfigId,
-  getRazorpayKeyId,
-  isRazorpayConfigured,
-} from "../config/razorpay.js";
+import { getCheckoutSettingsForWebsite } from "../services/razorpayCheckoutService.js";
 
 export const createOrder = async (req, res, next) => {
   try {
@@ -50,28 +46,11 @@ export const verifyPayment = async (req, res, next) => {
   }
 };
 
-function getRazorpayKeyMode(keyId) {
-  if (!keyId) return null;
-  if (keyId.startsWith("rzp_live_")) return "live";
-  if (keyId.startsWith("rzp_test_")) return "test";
-  return "unknown";
-}
-
-export const getPaymentConfig = (req, res) => {
-  const checkoutConfigId = getCheckoutConfigId();
-  const keyId = isRazorpayConfigured() ? getRazorpayKeyId() : null;
-  const keyMode = getRazorpayKeyMode(keyId);
-
-  return res.json({
-    success: true,
-    configured: isRazorpayConfigured(),
-    key_id: keyId,
-    key_mode: keyMode,
-    checkout_config_id: checkoutConfigId || null,
-    uses_dashboard_payment_config: Boolean(checkoutConfigId),
-    hint:
-      checkoutConfigId && keyMode
-        ? `Payment Configuration must be created in Razorpay ${keyMode.toUpperCase()} mode (same as your API keys). A test config ID will not work with rzp_live_ keys.`
-        : null,
-  });
+export const getPaymentConfig = async (req, res, next) => {
+  try {
+    const settings = await getCheckoutSettingsForWebsite();
+    return res.json({ success: true, ...settings });
+  } catch (err) {
+    return next(err);
+  }
 };

@@ -4,7 +4,7 @@
  */
 import ical from "ical-generator";
 import { getCalendarConfig, getSiteBaseUrl } from "../config/calendarConfig.js";
-import { getWebsiteBookingRanges } from "./availabilityService.js";
+import { getWebsiteCalendarRanges } from "./availabilityService.js";
 import { toDateString } from "../utils/dateUtils.js";
 import Property from "../models/Property.js";
 import mongoose from "mongoose";
@@ -38,7 +38,7 @@ export async function generatePropertyIcs(calendarSlug) {
     try {
       const property = await Property.findOne({ slug: config.propertySlug });
       if (property?._id) {
-        websiteRanges = await getWebsiteBookingRanges(property._id);
+        websiteRanges = await getWebsiteCalendarRanges(property._id);
       }
     } catch (err) {
       console.warn("ICS export: could not load bookings from DB", err.message);
@@ -61,9 +61,11 @@ export async function generatePropertyIcs(calendarSlug) {
       start: toDateString(range.start),
       end: toDateString(range.end),
       allDay: true,
-      summary: "Booked - Website",
+      summary: range.summary || "Booked - Website",
       description:
-        "Reserved via Joseph's Retreat website. Do not accept overlapping Airbnb bookings.",
+        range.source === "host"
+          ? "Blocked by host on Joseph's Retreat calendar."
+          : "Reserved via Joseph's Retreat website. Do not accept overlapping Airbnb bookings.",
       busystatus: "BUSY",
       transparency: "OPAQUE",
     });

@@ -2,6 +2,7 @@
  * Merges Airbnb blocked dates with website bookings from MongoDB.
  */
 import Booking from "../models/Booking.js";
+import ManualBlock from "../models/ManualBlock.js";
 import Property from "../models/Property.js";
 import {
   getCalendarConfig,
@@ -113,6 +114,29 @@ export async function getWebsiteBookingRanges(propertyId) {
   }));
 }
 
+export async function getManualBlockRanges(propertyId) {
+  if (!propertyId) return [];
+
+  const blocks = await ManualBlock.find({ property: propertyId }).select(
+    "checkIn checkOut reason",
+  );
+
+  return blocks.map((block) => ({
+    start: parseCalendarDate(toDateString(block.checkIn)),
+    end: parseCalendarDate(toDateString(block.checkOut)),
+    summary: block.reason || "Blocked by host",
+    source: "host",
+    blockId: block._id.toString(),
+  }));
+}
+
+/** Paid bookings + pending holds + host manual blocks (for calendar & export). */
+export async function getWebsiteCalendarRanges(propertyId) {
+  const bookingRanges = await getWebsiteBookingRanges(propertyId);
+  const manualRanges = await getManualBlockRanges(propertyId);
+  return [...bookingRanges, ...manualRanges];
+}
+
 export async function getMergedBlockedRanges(calendarSlug) {
   const config = getCalendarConfig(calendarSlug);
   if (!config) {
@@ -123,7 +147,7 @@ export async function getMergedBlockedRanges(calendarSlug) {
 
   const property = await resolveProperty(config.propertySlug);
   const websiteRanges = property
-    ? await getWebsiteBookingRanges(property._id)
+    ? await getWebsiteCalendarRanges(property._id)
     : [];
 
   let airbnbRanges = [];
@@ -186,7 +210,8 @@ export async function getAvailabilityByPropertySlug(propertySlug, options = {}) 
     })),
     sources: {
       airbnb: airbnbRanges.length,
-      website: websiteRanges.length,
+      website: websiteRanges.filter((r) => r.source === "website").length,
+      host: websiteRanges.filter((r) => r.source === "host").length,
     },
   };
 }

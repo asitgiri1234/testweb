@@ -11,6 +11,10 @@ vercel-env-values.txt
 frontend/dist/
 backend/dist/
 
+# Local Airbnb scrape artifacts
+tmp-*
+frontend/src/data/scraped-reviews.json
+
 # Logs
 logs/
 *.log

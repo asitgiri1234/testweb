@@ -5,7 +5,9 @@ import { useParams, Link } from "react-router-dom";
 import PropertyGallery from "../components/properties/PropertyGallery.jsx";
 import PropertyDescription from "../components/properties/PropertyDescription.jsx";
 import AmenitiesSection from "../components/properties/AmenitiesSection.jsx";
+import PropertyReviewsSection from "../components/properties/PropertyReviewsSection.jsx";
 import HostProfile from "../components/HostProfile.jsx";
+import { getPropertyReviews } from "../data/propertyReviews.js";
 import BookingWidget from "../components/booking/BookingWidget.jsx";
 import { getPropertyBySlug } from "../data/dummyProperties.js";
 import "./PropertyDetailsPage.css";
@@ -13,6 +15,7 @@ import "./PropertyDetailsPage.css";
 function PropertyDetailsPage() {
   const { slug } = useParams();
   const property = getPropertyBySlug(slug);
+  const reviewsData = getPropertyReviews(slug);
 
   if (!property) {
     return (
@@ -59,6 +62,13 @@ function PropertyDetailsPage() {
             <PropertyDescription sections={property.descriptionSections} />
 
             <AmenitiesSection amenities={property.amenities} />
+
+            <PropertyReviewsSection
+              reviewsData={reviewsData}
+              propertyTitle={property.title}
+              overallRating={property.rating}
+              reviewCount={property.reviewCount}
+            />
 
             <HostProfile variant="compact" />
 

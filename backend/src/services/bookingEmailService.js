@@ -1,5 +1,5 @@
-/**
- * Booking confirmation emails — guest receipt + host notification (Resend).
+﻿/**
+ * Booking confirmation emails â€” guest receipt + host notification (Resend).
  */
 import {
   emailConfig,
@@ -16,7 +16,7 @@ function escapeHtml(text) {
 }
 
 function formatInr(amount) {
-  return `₹${Number(amount).toLocaleString("en-IN")}`;
+  return `â‚¹${Number(amount).toLocaleString("en-IN")}`;
 }
 
 function formatStayDate(date) {
@@ -71,7 +71,7 @@ function buildGuestConfirmationEmail(booking) {
   const { siteName } = emailConfig;
   const host = buildHostContactBlock();
   const d = buildBookingDetails(booking);
-  const subject = `${siteName} — Your stay at ${d.propertyTitle} is confirmed`;
+  const subject = `${siteName} â€” Your stay at ${d.propertyTitle} is confirmed`;
 
   const text = [
     `Dear ${booking.guestName},`,
@@ -95,7 +95,7 @@ function buildGuestConfirmationEmail(booking) {
     `Email: ${host.hostEmail}`,
     `Phone: ${host.hostPhoneDisplay}`,
     "",
-    `If you have any questions before your arrival, please reach out directly — we are happy to help with directions, check-in, or special requests.`,
+    `If you have any questions before your arrival, please reach out directly â€” we are happy to help with directions, check-in, or special requests.`,
     "",
     `We look forward to welcoming you.`,
     "",
@@ -133,7 +133,7 @@ function buildGuestConfirmationEmail(booking) {
           <a href="tel:+91${escapeHtml(host.hostPhone.replace(/^\+?91/, ""))}" style="color: #1c1917;">${escapeHtml(host.hostPhoneDisplay)}</a>
         </p>
       </div>
-      <p style="margin: 0 0 8px; font-family: system-ui, sans-serif; color: #44403c;">If you have any questions before your arrival, please reach out directly — we are happy to help with directions, check-in, or special requests.</p>
+      <p style="margin: 0 0 8px; font-family: system-ui, sans-serif; color: #44403c;">If you have any questions before your arrival, please reach out directly â€” we are happy to help with directions, check-in, or special requests.</p>
       <p style="margin: 16px 0 0; font-family: system-ui, sans-serif; color: #44403c;">We look forward to welcoming you.</p>
       <p style="margin-top: 24px; font-family: system-ui, sans-serif; font-size: 13px; color: #78716c;">Warm regards,<br /><strong>${escapeHtml(host.hostName)}</strong><br />${escapeHtml(siteName)}</p>
     </div>
@@ -145,7 +145,7 @@ function buildGuestConfirmationEmail(booking) {
 function buildHostNotificationEmail(booking) {
   const { siteName } = emailConfig;
   const d = buildBookingDetails(booking);
-  const subject = `${siteName} — New paid booking: ${d.propertyTitle}`;
+  const subject = `${siteName} â€” New paid booking: ${d.propertyTitle}`;
 
   const text = [
     `New confirmed booking (payment received).`,
@@ -201,12 +201,12 @@ function buildHostNotificationEmail(booking) {
 }
 
 /**
- * Sends confirmation to guest and notification to host. Never throws — logs on failure.
+ * Sends confirmation to guest and notification to host. Never throws â€” logs on failure.
  */
 export async function sendBookingConfirmationEmails(booking) {
   if (!isEmailConfigured()) {
     console.warn(
-      "[booking-email] Skipped — RESEND_API_KEY not set. Add it in backend env (Vercel or .env).",
+      "[booking-email] Skipped â€” RESEND_API_KEY not set. Add it in backend env (Vercel or .env).",
     );
     return { sent: false, reason: "not_configured" };
   }
@@ -266,6 +266,81 @@ export async function sendBookingConfirmationEmails(booking) {
     return { sent: ok, guestId: guestResult.data?.id, hostId: hostResult.data?.id };
   } catch (err) {
     console.error(`[${requestId}] Unexpected email error:`, err);
+    return { sent: false, reason: err.message };
+  }
+}
+
+function buildGuestCancellationEmail(booking, { wasPaid }) {
+  const { siteName } = emailConfig;
+  const host = buildHostContactBlock();
+  const d = buildBookingDetails(booking);
+  const reason =
+    booking.cancellationReason?.trim() ||
+    "We are unable to host you for these dates.";
+
+  const subject = `${siteName} — Your reservation at ${d.propertyTitle} has been cancelled`;
+
+  const text = [
+    `Dear ${booking.guestName},`,
+    "",
+    `Your reservation at ${d.propertyTitle} has been cancelled.`,
+    "",
+    `Reference: ${d.reference}`,
+    `Check-in: ${d.checkIn}`,
+    `Check-out: ${d.checkOut}`,
+    "",
+    reason,
+    wasPaid ? "\nIf you paid online, your host will process any refund due." : "",
+    "",
+    `Contact: ${host.hostName} — ${host.hostEmail} — ${host.hostPhoneDisplay}`,
+    "",
+    siteName,
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  const html = `<div style="font-family: system-ui, sans-serif; max-width: 560px; color: #222; line-height: 1.6;">
+      <h2 style="margin: 0 0 12px;">Reservation cancelled</h2>
+      <p>Dear ${escapeHtml(booking.guestName)}, your stay at <strong>${escapeHtml(d.propertyTitle)}</strong> has been cancelled.</p>
+      <p><strong>${escapeHtml(d.checkIn)}</strong> → <strong>${escapeHtml(d.checkOut)}</strong></p>
+      <p style="background:#f5f4f2;padding:12px 16px;border-radius:8px;">${escapeHtml(reason)}</p>
+      ${wasPaid ? "<p>If you paid online, your host will process any refund due.</p>" : ""}
+      <p>Contact: ${escapeHtml(host.hostName)} — <a href="mailto:${escapeHtml(host.hostEmail)}">${escapeHtml(host.hostEmail)}</a> — ${escapeHtml(host.hostPhoneDisplay)}</p>
+    </div>`;
+
+  return { subject, text, html };
+}
+
+export async function sendBookingCancellationEmails(booking, { wasPaid = false } = {}) {
+  if (!isEmailConfigured()) {
+    console.warn("[booking-email] Cancellation skipped — RESEND_API_KEY not set.");
+    return { sent: false, reason: "not_configured" };
+  }
+
+  const resend = getResendClient();
+  if (!resend) return { sent: false, reason: "no_client" };
+
+  const guestMail = buildGuestCancellationEmail(booking, { wasPaid });
+  const requestId = `cancel-${booking._id}`;
+
+  try {
+    const guestResult = await resend.emails.send({
+      from: emailConfig.fromAddress,
+      to: [booking.guestEmail],
+      replyTo: emailConfig.hostEmail,
+      subject: guestMail.subject,
+      text: guestMail.text,
+      html: guestMail.html,
+    });
+
+    if (guestResult.error) {
+      console.error(`[${requestId}] Guest cancellation email failed:`, guestResult.error);
+      return { sent: false, reason: guestResult.error.message };
+    }
+
+    return { sent: true, guestId: guestResult.data?.id };
+  } catch (err) {
+    console.error(`[${requestId}] Cancellation email error:`, err);
     return { sent: false, reason: err.message };
   }
 }

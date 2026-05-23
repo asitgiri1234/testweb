@@ -4,6 +4,7 @@ import {
   getBookingById,
   releaseBookingHold,
 } from "../controllers/bookingController.js";
+import { requireAdmin } from "../middleware/requireAdmin.js";
 import { ensureDb } from "../middleware/ensureDb.js";
 
 const router = express.Router();
@@ -23,7 +24,7 @@ router.post("/", createBooking);
 // POST /api/bookings/:id/release — cancel unpaid hold (payment dismissed)
 router.post("/:id/release", releaseBookingHold);
 
-// GET /api/bookings/:id
-router.get("/:id", getBookingById);
+// GET /api/bookings/:id — admin only
+router.get("/:id", requireAdmin, getBookingById);
 
 export default router;

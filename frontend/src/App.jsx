@@ -11,6 +11,7 @@ import PropertyDetailsPage from "./pages/PropertyDetailsPage.jsx";
 import BookingPage from "./pages/BookingPage.jsx";
 import ContactPage from "./pages/ContactPage.jsx";
 import AboutPage from "./pages/AboutPage.jsx";
+import HostAdminPage from "./pages/HostAdminPage.jsx";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
           <Route path="/booking/:slug" element={<BookingPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/about" element={<AboutPage />} />
+          <Route path="/host" element={<HostAdminPage />} />
         </Routes>
       </main>
       <Footer />

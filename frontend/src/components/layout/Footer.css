@@ -59,6 +59,19 @@
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+.footer__studio-link {
+  margin-left: 0.35rem;
+  color: rgba(250, 249, 247, 0.14);
+  text-decoration: none;
+  font-size: 0.65rem;
+  transition: color var(--transition);
+}
+
+.footer__studio-link:hover {
+  color: rgba(250, 249, 247, 0.45);
+  text-decoration: none;
+}
+
 @media (max-width: 640px) {
   .footer__inner {
     grid-template-columns: 1fr;

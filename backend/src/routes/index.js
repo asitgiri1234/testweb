@@ -7,16 +7,19 @@ import bookingRoutes from "./bookingRoutes.js";
 import contactRoutes from "./contactRoutes.js";
 import calendarRoutes from "./calendarRoutes.js";
 import paymentRoutes from "./paymentRoutes.js";
+import adminRoutes from "./adminRoutes.js";
 import { ensureDb } from "../middleware/ensureDb.js";
 
 const router = express.Router();
 
 router.use(paymentRoutes);
+router.use("/admin", adminRoutes);
 
 router.use(async (req, res, next) => {
   if (
     req.path.startsWith("/contact") ||
     req.path.startsWith("/calendar") ||
+    req.path.startsWith("/admin") ||
     req.path === "/payment-config"
   ) {
     return next();

@@ -20,6 +20,9 @@ function Footer() {
         </nav>
         <p className="footer__copy">
           &copy; {new Date().getFullYear()} {siteConfig.name}. All rights reserved.
+          <Link to="/host" className="footer__studio-link" aria-label="Host access">
+            ·
+          </Link>
         </p>
       </div>
     </footer>

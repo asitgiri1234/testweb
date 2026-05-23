@@ -9,7 +9,10 @@ import {
 } from "../config/calendarConfig.js";
 import { getStaticProperty } from "../config/propertiesConfig.js";
 import { tryEnsureDb } from "../middleware/ensureDb.js";
-import { fetchAirbnbBlockedRanges } from "./airbnbImportService.js";
+import {
+  clearAirbnbCache,
+  fetchAirbnbBlockedRanges,
+} from "./airbnbImportService.js";
 import {
   eachNightInRange,
   expandRangeToDates,
@@ -102,8 +105,8 @@ export async function getWebsiteBookingRanges(propertyId) {
   }).select("checkIn checkOut guestName bookingStatus paymentStatus");
 
   return bookings.map((booking) => ({
-    start: booking.checkIn,
-    end: booking.checkOut,
+    start: parseCalendarDate(toDateString(booking.checkIn)),
+    end: parseCalendarDate(toDateString(booking.checkOut)),
     summary: `Booked — ${booking.guestName || "Guest"}`,
     source: "website",
     bookingId: booking._id.toString(),
@@ -142,12 +145,16 @@ export async function getMergedBlockedRanges(calendarSlug) {
   };
 }
 
-export async function getAvailabilityByPropertySlug(propertySlug) {
+export async function getAvailabilityByPropertySlug(propertySlug, options = {}) {
   const calendarSlug = getCalendarSlugForPropertySlug(propertySlug);
   if (!calendarSlug) {
     const error = new Error(`No calendar configured for property: ${propertySlug}`);
     error.statusCode = 404;
     throw error;
+  }
+
+  if (options.refresh) {
+    clearAirbnbCache(calendarSlug);
   }
 
   const { property, config, ranges, airbnbRanges, websiteRanges } =
@@ -169,6 +176,7 @@ export async function getAvailabilityByPropertySlug(propertySlug) {
     title: config.title,
     hasAirbnbSync: Boolean(config.airbnbIcalUrl),
     dbConnected: dbReady,
+    syncedAt: new Date().toISOString(),
     blockedDates: [...blockedDatesSet].sort(),
     blockedRanges: ranges.map((range) => ({
       from: toDateString(range.start),

@@ -81,7 +81,9 @@ function BookingWidget({
       setCalendarLoading(true);
       setCalendarWarning("");
       try {
-        const data = await fetchPropertyAvailability(property.slug);
+        const data = await fetchPropertyAvailability(property.slug, {
+          refresh: true,
+        });
         if (!cancelled) {
           setBlockedDates(data.blockedDates || []);
           setHasAirbnbSync(Boolean(data.hasAirbnbSync));
@@ -164,7 +166,9 @@ function BookingWidget({
 
   const refreshAvailability = async () => {
     try {
-      const refreshed = await fetchPropertyAvailability(property.slug);
+      const refreshed = await fetchPropertyAvailability(property.slug, {
+        refresh: true,
+      });
       setBlockedDates(refreshed.blockedDates || []);
     } catch {
       /* calendar will refresh on next load */

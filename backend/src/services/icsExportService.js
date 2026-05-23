@@ -5,6 +5,7 @@
 import ical from "ical-generator";
 import { getCalendarConfig, getSiteBaseUrl } from "../config/calendarConfig.js";
 import { getWebsiteBookingRanges } from "./availabilityService.js";
+import { toDateString } from "../utils/dateUtils.js";
 import Property from "../models/Property.js";
 import mongoose from "mongoose";
 
@@ -57,8 +58,9 @@ export async function generatePropertyIcs(calendarSlug) {
 
   for (const range of websiteRanges) {
     calendar.createEvent({
-      start: range.start,
-      end: range.end,
+      start: toDateString(range.start),
+      end: toDateString(range.end),
+      allDay: true,
       summary: "Booked - Website",
       description:
         "Reserved via Joseph's Retreat website. Do not accept overlapping Airbnb bookings.",

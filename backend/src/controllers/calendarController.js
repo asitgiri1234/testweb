@@ -3,6 +3,7 @@
  */
 import { generatePropertyIcs } from "../services/icsExportService.js";
 import { getAvailabilityByPropertySlug } from "../services/availabilityService.js";
+import { clearAirbnbCache } from "../services/airbnbImportService.js";
 import { getCalendarConfig, getSiteBaseUrl } from "../config/calendarConfig.js";
 
 export const exportCalendarIcs = async (req, res, next) => {
@@ -33,7 +34,10 @@ export const exportCalendarIcs = async (req, res, next) => {
 export const getPropertyAvailability = async (req, res, next) => {
   try {
     const { propertySlug } = req.params;
-    const availability = await getAvailabilityByPropertySlug(propertySlug);
+    const refresh = req.query.refresh === "1" || req.query.refresh === "true";
+    const availability = await getAvailabilityByPropertySlug(propertySlug, {
+      refresh,
+    });
 
     return res.json({
       success: true,
